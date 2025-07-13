@@ -121,7 +121,6 @@
                     <button id="nav-expenses" class="px-6 py-2 rounded-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 transition-all duration-200">
                         💸 Expenses
                     </button>
-                    <!-- Logout button removed as there's no login -->
                 </nav>
             </div>
         </header>
@@ -212,6 +211,12 @@
                                 <p class="text-sm text-purple-600 font-medium">Net Profit</p>
                                 <p id="netProfitValue" class="text-2xl font-bold text-purple-700">R0.00</p>
                             </div>
+                            <!-- New: Total Inventory Count -->
+                            <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 col-span-full">
+                                <p class="text-sm text-yellow-600 font-medium">Total Inventory Items</p>
+                                <p id="totalInventoryCount" class="text-2xl font-bold text-yellow-700">0</p>
+                            </div>
+                            <!-- End New: Total Inventory Count -->
                         </div>
                         <div class="flex-grow chart-container">
                             <canvas id="inventoryValueChart"></canvas>
@@ -420,6 +425,9 @@
         const importFileInput = document.getElementById('importFileInput');
         const notification = document.getElementById('notification');
         const autoSaveStatus = document.getElementById('autoSaveStatus');
+        // New: DOM element for total inventory count
+        const totalInventoryCount = document.getElementById('totalInventoryCount'); // HIGHLIGHT_START
+        // End New: DOM element for total inventory count
 
         // Task Filter Buttons
         const filterAll = document.getElementById('filterAll');
@@ -533,10 +541,12 @@
             let totalCP = 0;
             let totalSP = 0;
             let totalExp = 0;
+            let totalItemsInInventory = 0; // New: Variable for total inventory count // HIGHLIGHT_START
 
             inventory.forEach(item => {
                 totalCP += item.quantity * item.costPrice;
                 totalSP += item.quantity * item.sellingPrice;
+                totalItemsInInventory += item.quantity; // New: Summing quantities // HIGHLIGHT_END
             });
 
             expenses.forEach(expense => {
@@ -549,6 +559,7 @@
             totalSellingValue.textContent = `R${totalSP.toFixed(2)}`;
             totalExpensesValue.textContent = `R${totalExp.toFixed(2)}`;
             netProfitValue.textContent = `R${netProfit.toFixed(2)}`;
+            totalInventoryCount.textContent = totalItemsInInventory; // New: Update the total inventory count display // HIGHLIGHT_START
 
             updateInventoryChart(inventory);
         }
@@ -670,7 +681,7 @@
             inventory.push({ productName, quantity, costPrice, sellingPrice, category });
             inventoryForm.reset();
             renderInventory();
-            saveDataToLocalStorage();
+            saveDataToLocalStorage(); // Save to Local Storage
             showNotification('Item added successfully!', 'success');
         }
 
@@ -732,7 +743,7 @@
                 item.sellingPrice = parseFloat(document.getElementById('editSellingPrice').value);
                 
                 renderInventory();
-                saveDataToLocalStorage();
+                saveDataToLocalStorage(); // Save to Local Storage
                 showNotification('Inventory item updated successfully!', 'success');
                 overlay.remove();
             });
@@ -785,7 +796,7 @@
 
                 item.quantity -= quantityToDeduct;
                 renderInventory();
-                saveDataToLocalStorage();
+                saveDataToLocalStorage(); // Save to Local Storage
                 showNotification(`Deducted ${quantityToDeduct} from ${item.productName}. Remaining: ${item.quantity}`, 'success');
                 overlay.remove();
             });
@@ -818,7 +829,7 @@
             document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
                 inventory.splice(index, 1);
                 renderInventory();
-                saveDataToLocalStorage();
+                saveDataToLocalStorage(); // Save to Local Storage
                 showNotification('Item deleted successfully!', 'success');
                 overlay.remove();
             });
@@ -886,7 +897,7 @@
             tasks.push({ description, dueDate, priority, completed: false });
             taskForm.reset();
             renderTasks();
-            saveDataToLocalStorage();
+            saveDataToLocalStorage(); // Save to Local Storage
             showNotification('Task added successfully!', 'success');
         }
 
@@ -894,7 +905,7 @@
             const index = event.target.dataset.index;
             tasks[index].completed = !tasks[index].completed;
             renderTasks();
-            saveDataToLocalStorage();
+            saveDataToLocalStorage(); // Save to Local Storage
         }
 
         function editTask(event) {
@@ -943,7 +954,7 @@
                 task.priority = document.getElementById('editTaskPriority').value;
                 
                 renderTasks();
-                saveDataToLocalStorage();
+                saveDataToLocalStorage(); // Save to Local Storage
                 showNotification('Task updated successfully!', 'success');
                 overlay.remove();
             });
@@ -976,7 +987,7 @@
             document.getElementById('confirmDeleteTaskBtn').addEventListener('click', function() {
                 tasks.splice(index, 1);
                 renderTasks();
-                saveDataToLocalStorage();
+                saveDataToLocalStorage(); // Save to Local Storage
                 showNotification('Task deleted successfully!', 'success');
                 overlay.remove();
             });
@@ -1032,7 +1043,7 @@
             expenses.push({ name, amount, date, category });
             expenseForm.reset();
             renderExpenses();
-            saveDataToLocalStorage();
+            saveDataToLocalStorage(); // Save to Local Storage
             showNotification('Expense added successfully!', 'success');
         }
 
@@ -1089,7 +1100,7 @@
                 expense.category = document.getElementById('editExpenseCategory').value;
                 
                 renderExpenses();
-                saveDataToLocalStorage();
+                saveDataToLocalStorage(); // Save to Local Storage
                 showNotification('Expense updated successfully!', 'success');
                 overlay.remove();
             });
@@ -1122,7 +1133,7 @@
             document.getElementById('confirmDeleteExpenseBtn').addEventListener('click', function() {
                 expenses.splice(index, 1);
                 renderExpenses();
-                saveDataToLocalStorage();
+                saveDataToLocalStorage(); // Save to Local Storage
                 showNotification('Expense deleted successfully!', 'success');
                 overlay.remove();
             });
@@ -1337,6 +1348,26 @@
             showNotification('Data exported to PDF successfully!', 'success');
         }
 
+        function exportJsonData() {
+            const appData = {
+                inventory: inventory,
+                tasks: tasks,
+                expenses: expenses,
+                lastExported: new Date().toISOString()
+            };
+            const dataStr = JSON.stringify(appData, null, 2);
+            const blob = new Blob([dataStr], { type: "application/json" });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'cloudsoft_data.json';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showNotification('Data exported to JSON file!', 'success');
+        }
+
         function importData(event) {
             const file = event.target.files[0];
             if (!file) {
@@ -1346,23 +1377,11 @@
             reader.onload = (e) => {
                 try {
                     const importedData = JSON.parse(e.target.result);
-                    if (importedData.inventory && Array.isArray(importedData.inventory)) {
-                        inventory = importedData.inventory;
-                    } else {
-                        inventory = [];
-                    }
-                    if (importedData.tasks && Array.isArray(importedData.tasks)) {
-                        tasks = importedData.tasks;
-                    } else {
-                        tasks = [];
-                    }
-                    if (importedData.expenses && Array.isArray(importedData.expenses)) {
-                        expenses = importedData.expenses;
-                    } else {
-                        expenses = [];
-                    }
-                    renderAllSections();
+                    inventory = importedData.inventory || [];
+                    tasks = importedData.tasks || [];
+                    expenses = importedData.expenses || [];
                     saveDataToLocalStorage(); // Save imported data to local storage
+                    renderAllSections();
                     showNotification('Data imported successfully!', 'success');
                 } catch (error) {
                     showNotification('Error importing data: Invalid JSON file.', 'error');
@@ -1373,9 +1392,60 @@
             importFileInput.value = '';
         }
 
+        // --- Task Filter Buttons Event Listeners ---
+        filterAll.addEventListener('click', () => { currentTaskFilter = 'all'; renderTasks(); updateTaskFilterButtons('all'); });
+        filterPending.addEventListener('click', () => { currentTaskFilter = 'pending'; renderTasks(); updateTaskFilterButtons('pending'); });
+        filterCompleted.addEventListener('click', () => { currentTaskFilter = 'completed'; renderTasks(); updateTaskFilterButtons('completed'); });
+        filterHigh.addEventListener('click', () => { currentTaskFilter = 'high'; renderTasks(); updateTaskFilterButtons('high'); });
+
+        function updateTaskFilterButtons(activeFilter) {
+            const buttons = [filterAll, filterPending, filterCompleted, filterHigh];
+            buttons.forEach(button => {
+                if (button.id === `filter${activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)}`) {
+                    button.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                    button.classList.add('bg-blue-500', 'text-white', 'hover:bg-blue-600');
+                } else {
+                    button.classList.remove('bg-blue-500', 'text-white', 'hover:bg-blue-600');
+                    button.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                }
+            });
+        }
+
+        // --- Section switching logic ---
+        function switchSection(sectionId) {
+            document.getElementById('inventory-section').classList.add('hidden');
+            document.getElementById('tasks-section').classList.add('hidden');
+            document.getElementById('expenses-section').classList.add('hidden');
+
+            navInventory.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'text-white');
+            navInventory.classList.add('bg-gray-200', 'text-gray-700');
+            navTasks.classList.remove('bg-gradient-to-r', 'from-green-500', 'to-green-600', 'text-white');
+            navTasks.classList.add('bg-gray-200', 'text-gray-700');
+            navExpenses.classList.remove('bg-gradient-to-r', 'from-red-500', 'to-red-600', 'text-white');
+            navExpenses.classList.add('bg-gray-200', 'text-gray-700');
+
+            if (sectionId === 'inventory') {
+                document.getElementById('inventory-section').classList.remove('hidden');
+                navInventory.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'text-white');
+                navInventory.classList.remove('bg-gray-200', 'text-gray-700');
+                renderInventory(); 
+            } else if (sectionId === 'tasks') {
+                document.getElementById('tasks-section').classList.remove('hidden');
+                navTasks.classList.add('bg-gradient-to-r', 'from-green-500', 'to-green-600', 'text-white');
+                navTasks.classList.remove('bg-gray-200', 'text-gray-700');
+                renderTasks(); 
+            } else if (sectionId === 'expenses') {
+                document.getElementById('expenses-section').classList.remove('hidden');
+                navExpenses.classList.add('bg-gradient-to-r', 'from-red-500', 'to-red-600', 'text-white');
+                navExpenses.classList.remove('bg-gray-200', 'text-gray-700');
+                renderExpenses(); 
+            }
+        }
+
         // --- Event Listeners ---
         window.onload = () => {
-            loadDataFromLocalStorage(); // Load data on app start
+            loadDataFromLocalStorage(); // Load data from local storage on load
+
             switchSection('inventory'); // Default to inventory on load
             updateTaskFilterButtons('all'); // Set initial active filter button for tasks
 
@@ -1386,15 +1456,18 @@
             navInventory.addEventListener('click', () => switchSection('inventory'));
             navTasks.addEventListener('click', () => switchSection('tasks'));
             navExpenses.addEventListener('click', () => switchSection('expenses'));
-            exportDataBtn.addEventListener('click', exportData);
+            exportDataBtn.addEventListener('click', exportData); // Changed to export PDF
             importDataBtn.addEventListener('click', () => importFileInput.click());
             importFileInput.addEventListener('change', importData);
 
-            // Task Filter Buttons Event Listeners
-            filterAll.addEventListener('click', () => { currentTaskFilter = 'all'; renderTasks(); updateTaskFilterButtons('all'); });
-            filterPending.addEventListener('click', () => { currentTaskFilter = 'pending'; renderTasks(); updateTaskFilterButtons('pending'); });
-            filterCompleted.addEventListener('click', () => { currentTaskFilter = 'completed'; renderTasks(); updateTaskFilterButtons('completed'); });
-            filterHigh.addEventListener('click', () => { currentTaskFilter = 'high'; renderTasks(); updateTaskFilterButtons('high'); });
+            // Search and Filter Event Listeners
+            searchInventory.addEventListener('input', renderInventory);
+            filterCategory.addEventListener('change', renderInventory);
+            clearFilters.addEventListener('click', () => {
+                searchInventory.value = '';
+                filterCategory.value = '';
+                renderInventory();
+            });
         };
     </script>
 </body>
