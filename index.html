@@ -425,9 +425,7 @@
         const importFileInput = document.getElementById('importFileInput');
         const notification = document.getElementById('notification');
         const autoSaveStatus = document.getElementById('autoSaveStatus');
-        // New: DOM element for total inventory count
-        const totalInventoryCount = document.getElementById('totalInventoryCount'); // HIGHLIGHT_START
-        // End New: DOM element for total inventory count
+        const totalInventoryCount = document.getElementById('totalInventoryCount'); 
 
         // Task Filter Buttons
         const filterAll = document.getElementById('filterAll');
@@ -541,12 +539,12 @@
             let totalCP = 0;
             let totalSP = 0;
             let totalExp = 0;
-            let totalItemsInInventory = 0; // New: Variable for total inventory count // HIGHLIGHT_START
+            let totalItemsInInventory = 0; // Variable for total inventory count
 
             inventory.forEach(item => {
                 totalCP += item.quantity * item.costPrice;
                 totalSP += item.quantity * item.sellingPrice;
-                totalItemsInInventory += item.quantity; // New: Summing quantities // HIGHLIGHT_END
+                totalItemsInInventory += item.quantity; // Summing quantities
             });
 
             expenses.forEach(expense => {
@@ -559,7 +557,7 @@
             totalSellingValue.textContent = `R${totalSP.toFixed(2)}`;
             totalExpensesValue.textContent = `R${totalExp.toFixed(2)}`;
             netProfitValue.textContent = `R${netProfit.toFixed(2)}`;
-            totalInventoryCount.textContent = totalItemsInInventory; // New: Update the total inventory count display // HIGHLIGHT_START
+            totalInventoryCount.textContent = totalItemsInInventory; // Update the total inventory count display
 
             updateInventoryChart(inventory);
         }
@@ -1217,10 +1215,12 @@
             let totalCP = 0;
             let totalSP = 0;
             let totalExp = 0;
+            let totalItemsInInventory = 0; // Declare and initialize // HIGHLIGHT_START
 
             inventory.forEach(item => {
                 totalCP += item.quantity * item.costPrice;
                 totalSP += item.quantity * item.sellingPrice;
+                totalItemsInInventory += item.quantity; // Calculate total items // HIGHLIGHT_END
             });
             expenses.forEach(expense => {
                 totalExp += expense.amount;
@@ -1234,6 +1234,8 @@
             yPos += 7;
             doc.text(`Total Expenses: R${totalExp.toFixed(2)}`, 14, yPos);
             yPos += 7;
+            doc.text(`Total Inventory Items: ${totalItemsInInventory}`, 14, yPos); // Add to PDF // HIGHLIGHT_START
+            yPos += 7; // Adjust yPos // HIGHLIGHT_END
             doc.setFontSize(12);
             doc.setTextColor(netProfit >= 0 ? '#10B981' : '#EF4444'); // Green for profit, red for loss
             doc.text(`Net Profit: R${netProfit.toFixed(2)}`, 14, yPos);
