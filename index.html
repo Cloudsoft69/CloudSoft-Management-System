@@ -10,7 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <!-- jsPDF-AutoTable plugin for table generation in PDF -->
     <script src="https://unpkg.com/jspdf-autotable@3.5.20/dist/jspdf.plugin.autotable.js"></script>
-    
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -88,6 +88,23 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+
+        /* Custom styles for mobile navigation */
+        @media (max-width: 767px) {
+            .mobile-nav-hidden {
+                display: none;
+            }
+            .mobile-nav-show {
+                display: flex;
+                flex-direction: column;
+                gap: 0.5rem;
+                margin-top: 1rem;
+            }
+            .mobile-nav-show button {
+                width: 100%;
+                text-align: center;
+            }
+        }
     </style>
 </head>
 <body class="bg-gradient-to-br from-slate-50 to-blue-50 text-gray-800 min-h-screen">
@@ -104,14 +121,20 @@
     <div id="appContent" class="min-h-screen flex flex-col">
         <!-- Header -->
         <header class="bg-white shadow-lg py-4 border-b border-gray-200">
-            <div class="container mx-auto px-4 flex justify-between items-center">
-                <div class="flex items-center space-x-3">
+            <div class="container mx-auto px-4 flex flex-wrap justify-between items-center">
+                <div class="flex items-center space-x-3 mb-4 sm:mb-0">
                     <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center">
                         <span class="text-white font-bold text-lg">C</span>
                     </div>
-                    <h1 class="text-2xl font-bold text-gray-800">Cloudsoft Business Manager</h1>
+                    <h1 class="text-xl sm:text-2xl font-bold text-gray-800">Cloudsoft Business Manager</h1>
                 </div>
-                <nav class="flex space-x-2">
+
+                <!-- Hamburger menu for mobile -->
+                <button id="mobile-menu-toggle" class="lg:hidden p-2 rounded-md text-gray-700 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+                </button>
+
+                <nav id="main-nav" class="w-full lg:w-auto flex-col lg:flex-row lg:flex space-y-2 lg:space-y-0 lg:space-x-2 mobile-nav-hidden">
                     <button id="nav-inventory" class="px-6 py-2 rounded-lg font-semibold text-white bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md">
                         📦 Inventory
                     </button>
@@ -127,11 +150,11 @@
         <!-- Main Content Area -->
         <main class="flex-grow container mx-auto px-4 py-8">
             <!-- Auto-save Status -->
-            <div class="flex justify-between items-center mb-6">
+            <div class="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
                 <div class="flex items-center space-x-2">
                     <span id="autoSaveStatus" class="text-sm text-green-600 font-medium">✓ Auto-save enabled (Local Storage)</span>
                 </div>
-                <div class="flex space-x-2">
+                <div class="flex flex-wrap justify-center sm:justify-end gap-2">
                     <button id="exportDataBtn" class="px-4 py-2 rounded-lg bg-purple-500 text-white font-semibold hover:bg-purple-600 transition-colors shadow-md">
                         📄 Export PDF
                     </button>
@@ -143,12 +166,12 @@
             </div>
             <!-- Inventory Section -->
             <section id="inventory-section" class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
-                <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">📦 Inventory Management</h2>
-                <p class="text-gray-600 mb-6 text-center">Manage your product stock here. Add new items, update quantities, and keep track of your inventory value.</p>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 text-center">📦 Inventory Management</h2>
+                <p class="text-gray-600 mb-6 text-center text-sm sm:text-base">Manage your product stock here. Add new items, update quantities, and keep track of your inventory value.</p>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <!-- Add Inventory Form -->
                     <div class="p-6 border border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white shadow-sm">
-                        <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                        <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-4 flex items-center">
                             <span class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm mr-2">+</span>
                             Add New Inventory Item
                         </h3>
@@ -190,31 +213,31 @@
                     </div>
                     <!-- Inventory Summary & Chart -->
                     <div class="p-6 border border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white shadow-sm flex flex-col">
-                        <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                        <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-4 flex items-center">
                             <span class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-sm mr-2">📊</span>
                             Financial Overview
                         </h3>
-                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6">
                             <div class="bg-blue-50 p-4 rounded-lg border border-blue-200">
                                 <p class="text-sm text-blue-600 font-medium">Total Cost Value</p>
-                                <p id="totalCostValue" class="text-2xl font-bold text-blue-700">R0.00</p>
+                                <p id="totalCostValue" class="text-xl sm:text-2xl font-bold text-blue-700">R0.00</p>
                             </div>
                             <div class="bg-green-50 p-4 rounded-lg border border-green-200">
                                 <p class="text-sm text-green-600 font-medium">Total Selling Value</p>
-                                <p id="totalSellingValue" class="text-2xl font-bold text-green-700">R0.00</p>
+                                <p id="totalSellingValue" class="text-xl sm:text-2xl font-bold text-green-700">R0.00</p>
                             </div>
                             <div class="bg-red-50 p-4 rounded-lg border border-red-200">
                                 <p class="text-sm text-red-600 font-medium">Total Expenses</p>
-                                <p id="totalExpensesValue" class="text-2xl font-bold text-red-700">R0.00</p>
+                                <p id="totalExpensesValue" class="text-xl sm:text-2xl font-bold text-red-700">R0.00</p>
                             </div>
                             <div class="bg-purple-50 p-4 rounded-lg border border-purple-200">
                                 <p class="text-sm text-purple-600 font-medium">Net Profit</p>
-                                <p id="netProfitValue" class="text-2xl font-bold text-purple-700">R0.00</p>
+                                <p id="netProfitValue" class="text-xl sm:text-2xl font-bold text-purple-700">R0.00</p>
                             </div>
                             <!-- New: Total Inventory Count -->
                             <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-200 col-span-full">
                                 <p class="text-sm text-yellow-600 font-medium">Total Inventory Items</p>
-                                <p id="totalInventoryCount" class="text-2xl font-bold text-yellow-700">0</p>
+                                <p id="totalInventoryCount" class="text-xl sm:text-2xl font-bold text-yellow-700">0</p>
                             </div>
                             <!-- End New: Total Inventory Count -->
                         </div>
@@ -226,10 +249,10 @@
                 </div>
                 <!-- Search and Filter -->
                 <div class="mt-8 flex flex-col md:flex-row gap-4 items-center justify-between">
-                    <div class="flex-1 max-w-md">
+                    <div class="flex-1 w-full md:max-w-md">
                         <input type="text" id="searchInventory" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="🔍 Search inventory...">
                     </div>
-                    <div class="flex gap-2">
+                    <div class="flex flex-wrap justify-center gap-2">
                         <select id="filterCategory" class="border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
                             <option value="">All Categories</option>
                             <option value="1PLY">1PLY</option>
@@ -250,13 +273,13 @@
                         <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
                             <thead>
                                 <tr class="bg-gradient-to-r from-gray-100 to-gray-200 text-left text-sm font-medium text-gray-700 uppercase tracking-wider">
-                                    <th class="py-4 px-6 border-b border-gray-200">Product Name</th>
-                                    <th class="py-4 px-6 border-b border-gray-200">Category</th>
-                                    <th class="py-4 px-6 border-b border-gray-200">Quantity</th>
-                                    <th class="py-4 px-6 border-b border-gray-200">Cost Price</th>
-                                    <th class="py-4 px-6 border-b border-gray-200">Selling Price</th>
-                                    <th class="py-4 px-6 border-b border-gray-200">Total Value</th>
-                                    <th class="py-4 px-6 border-b border-gray-200">Actions</th>
+                                    <th class="py-4 px-3 sm:px-6 border-b border-gray-200">Product Name</th>
+                                    <th class="py-4 px-3 sm:px-6 border-b border-gray-200">Category</th>
+                                    <th class="py-4 px-3 sm:px-6 border-b border-gray-200">Quantity</th>
+                                    <th class="py-4 px-3 sm:px-6 border-b border-gray-200">Cost Price</th>
+                                    <th class="py-4 px-3 sm:px-6 border-b border-gray-200">Selling Price</th>
+                                    <th class="py-4 px-3 sm:px-6 border-b border-gray-200">Total Value</th>
+                                    <th class="py-4 px-3 sm:px-6 border-b border-gray-200">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="inventoryList" class="divide-y divide-gray-200">
@@ -273,10 +296,10 @@
             </section>
             <!-- Tasks Section -->
             <section id="tasks-section" class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 hidden">
-                <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">✓ Task Management</h2>
-                <p class="text-gray-600 mb-6 text-center">Keep track of your business tasks. Add new tasks, mark them as complete, or edit details.</p>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 text-center">✓ Task Management</h2>
+                <p class="text-gray-600 mb-6 text-center text-sm sm:text-base">Keep track of your business tasks. Add new tasks, mark them as complete, or edit details.</p>
                 <div class="p-6 border border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white shadow-sm mb-8">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-4 flex items-center">
                         <span class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-sm mr-2">+</span>
                         Add New Task
                     </h3>
@@ -305,11 +328,11 @@
                     </form>
                 </div>
                 <!-- Task Filters -->
-                <div class="flex flex-wrap gap-2 mb-6">
-                    <button id="filterAll" class="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition-colors">All</button>
-                    <button id="filterPending" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">Pending</button>
-                    <button id="filterCompleted" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">Completed</button>
-                    <button id="filterHigh" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">High Priority</button>
+                <div class="flex flex-wrap gap-2 mb-6 justify-center sm:justify-start">
+                    <button id="filterAll" class="px-4 py-2 rounded-lg bg-blue-500 text-white font-semibold hover:bg-blue-600 transition-colors text-sm">All</button>
+                    <button id="filterPending" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors text-sm">Pending</button>
+                    <button id="filterCompleted" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors text-sm">Completed</button>
+                    <button id="filterHigh" class="px-4 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors text-sm">High Priority</button>
                 </div>
                 <div>
                     <h3 class="text-xl font-semibold text-gray-700 mb-4">Current Tasks</h3>
@@ -326,10 +349,10 @@
 
             <!-- Expenses Section -->
             <section id="expenses-section" class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 hidden">
-                <h2 class="text-3xl font-bold text-gray-800 mb-6 text-center">💸 Expense Management</h2>
-                <p class="text-gray-600 mb-6 text-center">Track your business expenses to get a clearer picture of your net profit.</p>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 text-center">💸 Expense Management</h2>
+                <p class="text-gray-600 mb-6 text-center text-sm sm:text-base">Track your business expenses to get a clearer picture of your net profit.</p>
                 <div class="p-6 border border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white shadow-sm mb-8">
-                    <h3 class="text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-4 flex items-center">
                         <span class="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-sm mr-2">+</span>
                         Add New Expense
                     </h3>
@@ -369,11 +392,11 @@
                         <table class="min-w-full bg-white border border-gray-200 rounded-lg shadow-sm">
                             <thead>
                                 <tr class="bg-gradient-to-r from-gray-100 to-gray-200 text-left text-sm font-medium text-gray-700 uppercase tracking-wider">
-                                    <th class="py-4 px-6 border-b border-gray-200">Expense Name</th>
-                                    <th class="py-4 px-6 border-b border-gray-200">Category</th>
-                                    <th class="py-4 px-6 border-b border-gray-200">Amount</th>
-                                    <th class="py-4 px-6 border-b border-gray-200">Date</th>
-                                    <th class="py-4 px-6 border-b border-gray-200">Actions</th>
+                                    <th class="py-4 px-3 sm:px-6 border-b border-gray-200">Expense Name</th>
+                                    <th class="py-4 px-3 sm:px-6 border-b border-gray-200">Category</th>
+                                    <th class="py-4 px-3 sm:px-6 border-b border-gray-200">Amount</th>
+                                    <th class="py-4 px-3 sm:px-6 border-b border-gray-200">Date</th>
+                                    <th class="py-4 px-3 sm:px-6 border-b border-gray-200">Actions</th>
                                 </tr>
                             </thead>
                             <tbody id="expenseList" class="divide-y divide-gray-200">
@@ -425,13 +448,17 @@
         const importFileInput = document.getElementById('importFileInput');
         const notification = document.getElementById('notification');
         const autoSaveStatus = document.getElementById('autoSaveStatus');
-        const totalInventoryCount = document.getElementById('totalInventoryCount'); 
+        const totalInventoryCount = document.getElementById('totalInventoryCount');
 
         // Task Filter Buttons
         const filterAll = document.getElementById('filterAll');
         const filterPending = document.getElementById('filterPending');
         const filterCompleted = document.getElementById('filterCompleted');
         const filterHigh = document.getElementById('filterHigh');
+
+        // Mobile Menu Toggle
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const mainNav = document.getElementById('main-nav');
 
         // --- Utility Functions ---
         function showNotification(message, type = 'info') {
@@ -519,13 +546,9 @@
                     autoSaveStatus.textContent = `✓ Last loaded: ${new Date().toLocaleTimeString()}`;
                     showNotification('Data loaded from local storage!', 'success');
                 } else {
-                    console.log("No data found in local storage, starting fresh.");
-                    inventory = [];
-                    tasks = [];
-                    expenses = [];
-                    showNotification('No local data found. Starting fresh.', 'info');
+                    console.log("No data found in local storage. Starting fresh.");
+                    showNotification('No saved data found. Starting fresh.', 'info');
                 }
-                renderAllSections();
             } catch (e) {
                 console.error("Error loading from local storage: ", e);
                 showNotification('Error loading data from local storage.', 'error');
@@ -534,320 +557,246 @@
             }
         }
 
-        // --- Financial Summary Calculation ---
-        function updateOverallFinancialSummary() {
-            let totalCP = 0;
-            let totalSP = 0;
-            let totalExp = 0;
-            let totalItemsInInventory = 0; // Variable for total inventory count
+        // --- Inventory Functions ---
+        function addInventoryItem(event) {
+            event.preventDefault();
+            const productName = document.getElementById('productName').value.trim();
+            const quantity = parseInt(document.getElementById('quantity').value);
+            const category = document.getElementById('category').value;
+            const costPrice = parseFloat(document.getElementById('costPrice').value);
+            const sellingPrice = parseFloat(document.getElementById('sellingPrice').value);
 
-            inventory.forEach(item => {
-                totalCP += item.quantity * item.costPrice;
-                totalSP += item.quantity * item.sellingPrice;
-                totalItemsInInventory += item.quantity; // Summing quantities
+            if (!productName || isNaN(quantity) || quantity < 0 || isNaN(costPrice) || costPrice < 0 || isNaN(sellingPrice) || sellingPrice < 0) {
+                showNotification('Please fill in all fields with valid numbers (quantity, cost, selling price cannot be negative).', 'error');
+                return;
+            }
+
+            const totalValue = quantity * sellingPrice;
+
+            inventory.push({
+                id: Date.now(),
+                productName,
+                quantity,
+                category,
+                costPrice,
+                sellingPrice,
+                totalValue
             });
-
-            expenses.forEach(expense => {
-                totalExp += expense.amount;
-            });
-
-            const netProfit = totalSP - totalCP - totalExp;
-
-            totalCostValue.textContent = `R${totalCP.toFixed(2)}`;
-            totalSellingValue.textContent = `R${totalSP.toFixed(2)}`;
-            totalExpensesValue.textContent = `R${totalExp.toFixed(2)}`;
-            netProfitValue.textContent = `R${netProfit.toFixed(2)}`;
-            totalInventoryCount.textContent = totalItemsInInventory; // Update the total inventory count display
-
-            updateInventoryChart(inventory);
+            saveDataToLocalStorage();
+            renderInventory();
+            updateOverallFinancialSummary();
+            inventoryForm.reset();
+            showNotification('Inventory item added successfully!', 'success');
         }
 
-        // --- Inventory Functions ---
-        function renderInventory() {
+        function renderInventory(searchTerm = '', filterCat = '') {
             inventoryList.innerHTML = '';
             let filteredInventory = inventory;
-            const searchTerm = searchInventory.value.toLowerCase();
-            const categoryFilter = filterCategory.value;
 
-            if (searchTerm || categoryFilter) {
-                filteredInventory = inventory.filter(item => {
-                    const matchesSearch = item.productName.toLowerCase().includes(searchTerm);
-                    const matchesCategory = !categoryFilter || item.category === categoryFilter;
-                    return matchesSearch && matchesCategory;
-                });
+            if (searchTerm) {
+                const lowerCaseSearchTerm = searchTerm.toLowerCase();
+                filteredInventory = filteredInventory.filter(item =>
+                    item.productName.toLowerCase().includes(lowerCaseSearchTerm) ||
+                    item.category.toLowerCase().includes(lowerCaseSearchTerm)
+                );
             }
-            
+
+            if (filterCat) {
+                filteredInventory = filteredInventory.filter(item => item.category === filterCat);
+            }
+
             if (filteredInventory.length === 0) {
                 noInventoryMessage.classList.remove('hidden');
             } else {
                 noInventoryMessage.classList.add('hidden');
+                filteredInventory.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50 transition-colors fade-in';
+                    row.innerHTML = `
+                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">${item.productName}</td>
+                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">${item.category}</td>
+                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">
+                            <input type="number" value="${item.quantity}" min="0" data-id="${item.id}" data-field="quantity"
+                                class="w-20 p-1 border rounded-md text-sm focus:ring-blue-400 focus:border-blue-400 quantity-input">
+                        </td>
+                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">R${item.costPrice.toFixed(2)}</td>
+                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">
+                            <input type="number" value="${item.sellingPrice.toFixed(2)}" step="0.01" min="0" data-id="${item.id}" data-field="sellingPrice"
+                                class="w-24 p-1 border rounded-md text-sm focus:ring-blue-400 focus:border-blue-400 selling-price-input">
+                        </td>
+                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200 font-semibold">R${(item.quantity * item.sellingPrice).toFixed(2)}</td>
+                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">
+                            <button data-id="${item.id}" class="delete-inventory-btn text-red-600 hover:text-red-800 transition-colors p-1 rounded-full hover:bg-red-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm2 3a1 1 0 011-1h4a1 1 0 110 2H9a1 1 0 01-1-1zm0 3a1 1 0 011-1h4a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </td>
+                    `;
+                    inventoryList.appendChild(row);
+                });
             }
-            
-            filteredInventory.forEach((item, index) => {
-                const originalIndex = inventory.indexOf(item);
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-gray-50 transition-colors fade-in';
-                row.innerHTML = `
-                    <td class="py-4 px-6 border-b border-gray-200 font-medium">${item.productName}</td>
-                    <td class="py-4 px-6 border-b border-gray-200">
-                        <span class="px-2 py-1 text-xs rounded-full bg-blue-100 text-blue-800">${item.category}</span>
-                    </td>
-                    <td class="py-4 px-6 border-b border-gray-200">${item.quantity}</td>
-                    <td class="py-4 px-6 border-b border-gray-200">R${item.costPrice.toFixed(2)}</td>
-                    <td class="py-4 px-6 border-b border-gray-200">R${item.sellingPrice.toFixed(2)}</td>
-                    <td class="py-4 px-6 border-b border-gray-200 font-semibold">R${(item.quantity * item.sellingPrice).toFixed(2)}</td>
-                    <td class="py-4 px-6 border-b border-gray-200">
-                        <button data-index="${originalIndex}" class="edit-inventory-btn text-blue-600 hover:text-blue-800 font-semibold mr-3 transition-colors">✏️ Edit</button>
-                        <button data-index="${originalIndex}" class="deduct-stock-btn text-purple-600 hover:text-purple-800 font-semibold mr-3 transition-colors">➖ Deduct</button>
-                        <button data-index="${originalIndex}" class="delete-inventory-btn text-red-600 hover:text-red-800 font-semibold transition-colors">🗑️ Delete</button>
-                    </td>
-                `;
-                inventoryList.appendChild(row);
-            });
-            
-            document.querySelectorAll('.edit-inventory-btn').forEach(button => {
-                button.addEventListener('click', editInventoryItem);
-            });
-            document.querySelectorAll('.deduct-stock-btn').forEach(button => {
-                button.addEventListener('click', deductStockItem);
-            });
-            document.querySelectorAll('.delete-inventory-btn').forEach(button => {
-                button.addEventListener('click', deleteInventoryItem);
-            });
-
-            updateOverallFinancialSummary();
+            attachInventoryEventListeners();
         }
 
-        function updateInventoryChart(data) {
+        function attachInventoryEventListeners() {
+            document.querySelectorAll('.delete-inventory-btn').forEach(button => {
+                button.onclick = (e) => {
+                    const id = parseInt(e.currentTarget.dataset.id);
+                    inventory = inventory.filter(item => item.id !== id);
+                    saveDataToLocalStorage();
+                    renderInventory();
+                    updateOverallFinancialSummary();
+                    showNotification('Inventory item deleted.', 'info');
+                };
+            });
+
+            document.querySelectorAll('.quantity-input, .selling-price-input').forEach(input => {
+                input.onchange = (e) => {
+                    const id = parseInt(e.target.dataset.id);
+                    const field = e.target.dataset.field;
+                    let value = parseFloat(e.target.value);
+
+                    if (isNaN(value) || value < 0) {
+                        showNotification('Quantity and price must be non-negative numbers.', 'error');
+                        renderInventory(searchInventory.value, filterCategory.value); // Re-render to revert invalid input
+                        return;
+                    }
+
+                    const itemIndex = inventory.findIndex(item => item.id === id);
+                    if (itemIndex > -1) {
+                        inventory[itemIndex][field] = value;
+                        inventory[itemIndex].totalValue = inventory[itemIndex].quantity * inventory[itemIndex].sellingPrice;
+                        saveDataToLocalStorage();
+                        renderInventory(searchInventory.value, filterCategory.value); // Re-render to update total value and ensure consistency
+                        updateOverallFinancialSummary();
+                        showNotification('Inventory updated!', 'success');
+                    }
+                };
+            });
+        }
+
+
+        function updateOverallFinancialSummary() {
+            const totalCost = inventory.reduce((sum, item) => sum + (item.quantity * item.costPrice), 0);
+            const totalSelling = inventory.reduce((sum, item) => sum + (item.quantity * item.sellingPrice), 0);
+            const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+            const netProfit = totalSelling - totalCost - totalExpenses;
+            const totalItemsCount = inventory.length;
+
+            totalCostValue.textContent = `R${totalCost.toFixed(2)}`;
+            totalSellingValue.textContent = `R${totalSelling.toFixed(2)}`;
+            totalExpensesValue.textContent = `R${totalExpenses.toFixed(2)}`;
+            netProfitValue.textContent = `R${netProfit.toFixed(2)}`;
+            totalInventoryCount.textContent = totalItemsCount;
+
+            updateInventoryValueChart();
+        }
+
+        function updateInventoryValueChart() {
             if (inventoryChart) {
                 inventoryChart.destroy();
             }
-            if (data.length === 0) {
-                return;
-            }
-            const chartLabels = data.map(item => wrapLabel(item.productName));
-            const chartData = data.map(item => item.quantity * item.sellingPrice);
-            const backgroundColors = [
-                '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6',
-                '#06B6D4', '#84CC16', '#F97316', '#EC4899', '#6B7280'
-            ];
+
+            const chartData = inventory.map(item => ({
+                label: item.productName,
+                value: item.quantity * item.sellingPrice
+            }));
+
+            // Sort and take top N, or all if less than N
+            chartData.sort((a, b) => b.value - a.value);
+            const topItems = chartData.slice(0, 5); // Show top 5 items by value
+
+            const labels = topItems.map(item => wrapLabel(item.label));
+            const data = topItems.map(item => item.value);
+
             inventoryChart = new Chart(inventoryValueChartCanvas, {
                 type: 'doughnut',
                 data: {
-                    labels: chartLabels,
+                    labels: labels,
                     datasets: [{
-                        data: chartData,
-                        backgroundColor: backgroundColors.slice(0, chartData.length),
-                        borderColor: '#FFFFFF',
-                        borderWidth: 2,
+                        data: data,
+                        backgroundColor: [
+                            '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#6366F1',
+                            '#06B6D4', '#EC4899', '#84CC16', '#F97316', '#6B7280'
+                        ],
+                        hoverOffset: 8
                     }]
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    cutout: '70%',
                     plugins: {
                         legend: {
-                            position: 'bottom',
+                            position: 'right',
                             labels: {
-                                font: { size: 12, family: 'Inter' },
-                                color: '#374151',
-                                padding: 10
+                                boxWidth: 20,
+                                padding: 15,
+                                font: {
+                                    size: 12
+                                }
                             }
+                        },
+                        title: {
+                            display: true,
+                            text: 'Inventory Value Distribution (Top 5)',
+                            font: {
+                                size: 16,
+                                weight: 'bold'
+                            },
+                            color: '#374151'
                         },
                         tooltip: {
                             callbacks: {
                                 label: function(context) {
-                                    const label = context.label || '';
-                                    const value = context.parsed || 0;
-                                    return `${label}: R${value.toFixed(2)}`;
+                                    let label = context.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    if (context.parsed !== null) {
+                                        label += 'R' + context.parsed.toFixed(2);
+                                    }
+                                    return label;
                                 }
                             }
                         }
+                    },
+                    layout: {
+                        padding: 10
                     }
                 }
             });
         }
 
-        function addInventoryItem(event) {
-            event.preventDefault();
-            const productName = document.getElementById('productName').value;
-            const quantity = parseInt(document.getElementById('quantity').value);
-            const costPrice = parseFloat(document.getElementById('costPrice').value);
-            const sellingPrice = parseFloat(document.getElementById('sellingPrice').value);
-            const category = document.getElementById('category').value;
-            inventory.push({ productName, quantity, costPrice, sellingPrice, category });
-            inventoryForm.reset();
-            renderInventory();
-            saveDataToLocalStorage(); // Save to Local Storage
-            showNotification('Item added successfully!', 'success');
-        }
-
-        function editInventoryItem(event) {
-            const index = event.target.dataset.index;
-            const item = inventory[index];
-
-            const overlay = document.createElement('div');
-            overlay.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 fade-in';
-            overlay.innerHTML = `
-                <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md mx-4 transform scale-95 opacity-0 transition-all duration-300" id="editModalContent">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Edit Inventory Item</h3>
-                    <form id="editInventoryForm" class="space-y-4">
-                        <div>
-                            <label for="editProductName" class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
-                            <input type="text" id="editProductName" value="${item.productName}" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" required>
-                        </div>
-                        <div>
-                            <label for="editQuantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
-                            <input type="number" id="editQuantity" value="${item.quantity}" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" required min="0">
-                        </div>
-                        <div>
-                            <label for="editCategory" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                            <select id="editCategory" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
-                                <option value="1PLY" ${item.category === '1PLY' ? 'selected' : ''}>1PLY</option>
-                                <option value="2PLY (200 Sheets)" ${item.category === '2PLY (200 Sheets)' ? 'selected' : ''}>2PLY (200 Sheets)</option>
-                                <option value="2PLY (350 Sheets)" ${item.category === '2PLY (350 Sheets)' ? 'selected' : ''}>2PLY (350 Sheets)</option>
-                                <option value="Refuse Bags" ${item.category === 'Refuse Bags' ? 'selected' : ''}>Refuse Bags</option>
-                                <option value="Other" ${item.category === 'Other' ? 'selected' : ''}>Other</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label for="editCostPrice" class="block text-sm font-medium text-gray-700 mb-1">Cost Price (R)</label>
-                            <input type="number" id="editCostPrice" step="0.01" value="${item.costPrice}" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" required min="0">
-                        </div>
-                        <div>
-                            <label for="editSellingPrice" class="block text-sm font-medium text-gray-700 mb-1">Selling Price (R)</label>
-                            <input type="number" id="editSellingPrice" step="0.01" value="${item.sellingPrice}" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" required min="0">
-                        </div>
-                        <div class="flex justify-end space-x-4 mt-6">
-                            <button type="button" id="cancelEditBtn" class="px-6 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">Cancel</button>
-                            <button type="submit" class="px-6 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors">Save Changes</button>
-                        </div>
-                    </form>
-                </div>
-            `;
-            document.body.appendChild(overlay);
-
-            setTimeout(() => {
-                document.getElementById('editModalContent').classList.remove('scale-95', 'opacity-0');
-            }, 10);
-
-            document.getElementById('editInventoryForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                item.productName = document.getElementById('editProductName').value;
-                item.quantity = parseInt(document.getElementById('editQuantity').value);
-                item.category = document.getElementById('editCategory').value;
-                item.costPrice = parseFloat(document.getElementById('editCostPrice').value);
-                item.sellingPrice = parseFloat(document.getElementById('editSellingPrice').value);
-                
-                renderInventory();
-                saveDataToLocalStorage(); // Save to Local Storage
-                showNotification('Inventory item updated successfully!', 'success');
-                overlay.remove();
-            });
-
-            document.getElementById('cancelEditBtn').addEventListener('click', function() {
-                overlay.remove();
-            });
-        }
-
-        function deductStockItem(event) {
-            const index = event.target.dataset.index;
-            const item = inventory[index];
-
-            const overlay = document.createElement('div');
-            overlay.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 fade-in';
-            overlay.innerHTML = `
-                <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md mx-4 transform scale-95 opacity-0 transition-all duration-300" id="deductModalContent">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Deduct Stock for "${item.productName}"</h3>
-                    <form id="deductStockForm" class="space-y-4">
-                        <div>
-                            <label for="deductQuantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity to Deduct</label>
-                            <input type="number" id="deductQuantity" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-purple-500 focus:border-purple-500 transition-all" placeholder="0" required min="1" max="${item.quantity}">
-                            <p class="text-xs text-gray-500 mt-1">Current stock: ${item.quantity}</p>
-                        </div>
-                        <div class="flex justify-end space-x-4 mt-6">
-                            <button type="button" id="cancelDeductBtn" class="px-6 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">Cancel</button>
-                            <button type="submit" class="px-6 py-2 rounded-lg bg-purple-600 text-white font-semibold hover:bg-purple-700 transition-colors">Deduct Stock</button>
-                        </div>
-                    </form>
-                </div>
-            `;
-            document.body.appendChild(overlay);
-
-            setTimeout(() => {
-                document.getElementById('deductModalContent').classList.remove('scale-95', 'opacity-0');
-            }, 10);
-
-            document.getElementById('deductStockForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const quantityToDeduct = parseInt(document.getElementById('deductQuantity').value);
-
-                if (isNaN(quantityToDeduct) || quantityToDeduct <= 0) {
-                    showNotification('Please enter a valid quantity to deduct.', 'error');
-                    return;
-                }
-                if (quantityToDeduct > item.quantity) {
-                    showNotification('Cannot deduct more than available stock!', 'error');
-                    return;
-                }
-
-                item.quantity -= quantityToDeduct;
-                renderInventory();
-                saveDataToLocalStorage(); // Save to Local Storage
-                showNotification(`Deducted ${quantityToDeduct} from ${item.productName}. Remaining: ${item.quantity}`, 'success');
-                overlay.remove();
-            });
-
-            document.getElementById('cancelDeductBtn').addEventListener('click', function() {
-                overlay.remove();
-            });
-        }
-
-        function deleteInventoryItem(event) {
-            const index = event.target.dataset.index;
-            const overlay = document.createElement('div');
-            overlay.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 fade-in';
-            overlay.innerHTML = `
-                <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-sm mx-4 transform scale-95 opacity-0 transition-all duration-300" id="confirmModalContent">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center">Confirm Deletion</h3>
-                    <p class="text-gray-600 mb-6 text-center">Are you sure you want to delete "${inventory[index].productName}"?</p>
-                    <div class="flex justify-center space-x-4">
-                        <button type="button" id="cancelDeleteBtn" class="px-6 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">Cancel</button>
-                        <button type="button" id="confirmDeleteBtn" class="px-6 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors">Delete</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(overlay);
-
-            setTimeout(() => {
-                document.getElementById('confirmModalContent').classList.remove('scale-95', 'opacity-0');
-            }, 10);
-
-            document.getElementById('confirmDeleteBtn').addEventListener('click', function() {
-                inventory.splice(index, 1);
-                renderInventory();
-                saveDataToLocalStorage(); // Save to Local Storage
-                showNotification('Item deleted successfully!', 'success');
-                overlay.remove();
-            });
-
-            document.getElementById('cancelDeleteBtn').addEventListener('click', function() {
-                overlay.remove();
-            });
-        }
-
         // --- Task Functions ---
-        function renderTasks() {
-            taskList.innerHTML = '';
-            if (tasks.length === 0) {
-                noTasksMessage.classList.remove('hidden');
+        function addTask(event) {
+            event.preventDefault();
+            const description = document.getElementById('taskDescription').value.trim();
+            const dueDate = document.getElementById('taskDueDate').value;
+            const priority = document.getElementById('taskPriority').value;
+
+            if (!description) {
+                showNotification('Task description cannot be empty.', 'error');
                 return;
-            } else {
-                noTasksMessage.classList.add('hidden');
             }
 
+            tasks.push({
+                id: Date.now(),
+                description,
+                dueDate,
+                priority,
+                completed: false
+            });
+            saveDataToLocalStorage();
+            renderTasks();
+            taskForm.reset();
+            showNotification('Task added successfully!', 'success');
+        }
+
+        function renderTasks() {
+            taskList.innerHTML = '';
             let filteredTasks = tasks;
+
             if (currentTaskFilter === 'pending') {
                 filteredTasks = tasks.filter(task => !task.completed);
             } else if (currentTaskFilter === 'completed') {
@@ -856,621 +805,399 @@
                 filteredTasks = tasks.filter(task => task.priority === 'High' && !task.completed);
             }
 
-            filteredTasks.forEach((task, index) => {
-                const originalIndex = tasks.indexOf(task);
-                const li = document.createElement('li');
-                li.className = `flex flex-col sm:flex-row items-start sm:items-center justify-between p-4 rounded-lg shadow-sm border ${getPriorityColor(task.priority)} fade-in`;
-                li.innerHTML = `
-                    <div class="mb-2 sm:mb-0">
-                        <p class="font-semibold text-lg ${task.completed ? 'line-through text-gray-500' : 'text-gray-800'}">${task.description}</p>
-                        <p class="text-sm text-gray-600">${task.dueDate ? `Due: ${task.dueDate}` : 'No due date'}</p>
-                        <p class="text-xs font-medium ${task.completed ? 'text-green-600' : 'text-blue-600'}">${task.completed ? 'Completed' : 'Pending'} | Priority: ${task.priority}</p>
-                    </div>
-                    <div class="flex flex-wrap gap-2 sm:ml-auto">
-                        <button data-index="${originalIndex}" class="toggle-task-btn px-3 py-1 rounded-md ${task.completed ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} text-white font-semibold transition-colors text-sm">${task.completed ? 'Unmark' : 'Complete'}</button>
-                        <button data-index="${originalIndex}" class="edit-task-btn px-3 py-1 rounded-md bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors text-sm">Edit</button>
-                        <button data-index="${originalIndex}" class="delete-task-btn px-3 py-1 rounded-md bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors text-sm">Delete</button>
-                    </div>
-                `;
-                taskList.appendChild(li);
-            });
+            if (filteredTasks.length === 0) {
+                noTasksMessage.classList.remove('hidden');
+            } else {
+                noTasksMessage.classList.add('hidden');
+                filteredTasks.forEach(task => {
+                    const taskElement = document.createElement('div');
+                    const priorityColorClass = getPriorityColor(task.priority);
+                    taskElement.className = `p-4 border ${priorityColorClass} rounded-lg shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 fade-in ${task.completed ? 'opacity-60 line-through' : ''}`;
+                    taskElement.innerHTML = `
+                        <div class="flex-1">
+                            <h4 class="font-semibold text-gray-800 text-lg">${task.description}</h4>
+                            <p class="text-gray-600 text-sm">Due: ${task.dueDate || 'No Due Date'} | Priority: <span class="font-medium">${task.priority}</span></p>
+                        </div>
+                        <div class="flex space-x-2 mt-2 sm:mt-0">
+                            <button data-id="${task.id}" class="toggle-task-btn px-3 py-1 rounded-md text-white font-semibold transition-colors
+                                ${task.completed ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'}">
+                                ${task.completed ? 'Unmark' : 'Complete'}
+                            </button>
+                            <button data-id="${task.id}" class="delete-task-btn px-3 py-1 rounded-md bg-red-500 text-white font-semibold hover:bg-red-600 transition-colors">
+                                Delete
+                            </button>
+                        </div>
+                    `;
+                    taskList.appendChild(taskElement);
+                });
+            }
+            attachTaskEventListeners();
+            updateTaskFilterButtons();
+        }
 
+        function attachTaskEventListeners() {
             document.querySelectorAll('.toggle-task-btn').forEach(button => {
-                button.addEventListener('click', toggleTaskStatus);
+                button.onclick = (e) => {
+                    const id = parseInt(e.currentTarget.dataset.id);
+                    const taskIndex = tasks.findIndex(task => task.id === id);
+                    if (taskIndex > -1) {
+                        tasks[taskIndex].completed = !tasks[taskIndex].completed;
+                        saveDataToLocalStorage();
+                        renderTasks();
+                        showNotification(`Task marked as ${tasks[taskIndex].completed ? 'completed' : 'pending'}.`, 'info');
+                    }
+                };
             });
-            document.querySelectorAll('.edit-task-btn').forEach(button => {
-                button.addEventListener('click', editTask);
-            });
+
             document.querySelectorAll('.delete-task-btn').forEach(button => {
-                button.addEventListener('click', deleteTask);
+                button.onclick = (e) => {
+                    const id = parseInt(e.currentTarget.dataset.id);
+                    tasks = tasks.filter(task => task.id !== id);
+                    saveDataToLocalStorage();
+                    renderTasks();
+                    showNotification('Task deleted.', 'info');
+                };
             });
         }
 
-        function addTask(event) {
-            event.preventDefault();
-            const description = document.getElementById('taskDescription').value;
-            const dueDate = document.getElementById('taskDueDate').value;
-            const priority = document.getElementById('taskPriority').value;
+        function updateTaskFilterButtons() {
+            filterAll.classList.remove('bg-blue-500', 'text-white');
+            filterAll.classList.add('bg-gray-200', 'text-gray-700');
+            filterPending.classList.remove('bg-blue-500', 'text-white');
+            filterPending.classList.add('bg-gray-200', 'text-gray-700');
+            filterCompleted.classList.remove('bg-blue-500', 'text-white');
+            filterCompleted.classList.add('bg-gray-200', 'text-gray-700');
+            filterHigh.classList.remove('bg-blue-500', 'text-white');
+            filterHigh.classList.add('bg-gray-200', 'text-gray-700');
 
-            tasks.push({ description, dueDate, priority, completed: false });
-            taskForm.reset();
-            renderTasks();
-            saveDataToLocalStorage(); // Save to Local Storage
-            showNotification('Task added successfully!', 'success');
-        }
-
-        function toggleTaskStatus(event) {
-            const index = event.target.dataset.index;
-            tasks[index].completed = !tasks[index].completed;
-            renderTasks();
-            saveDataToLocalStorage(); // Save to Local Storage
-        }
-
-        function editTask(event) {
-            const index = event.target.dataset.index;
-            const task = tasks[index];
-
-            const overlay = document.createElement('div');
-            overlay.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 fade-in';
-            overlay.innerHTML = `
-                <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md mx-4 transform scale-95 opacity-0 transition-all duration-300" id="editTaskModalContent">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Edit Task</h3>
-                    <form id="editTaskForm" class="space-y-4">
-                        <div>
-                            <label for="editTaskDescription" class="block text-sm font-medium text-gray-700 mb-1">Task Description</label>
-                            <textarea id="editTaskDescription" rows="3" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" required>${task.description}</textarea>
-                        </div>
-                        <div>
-                            <label for="editTaskDueDate" class="block text-sm font-medium text-gray-700 mb-1">Due Date</label>
-                            <input type="date" id="editTaskDueDate" value="${task.dueDate || ''}" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
-                        </div>
-                        <div>
-                            <label for="editTaskPriority" class="block text-sm font-medium text-gray-700 mb-1">Priority</label>
-                            <select id="editTaskPriority" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
-                                <option value="Low" ${task.priority === 'Low' ? 'selected' : ''}>Low</option>
-                                <option value="Medium" ${task.priority === 'Medium' ? 'selected' : ''}>Medium</option>
-                                <option value="High" ${task.priority === 'High' ? 'selected' : ''}>High</option>
-                            </select>
-                        </div>
-                        <div class="flex justify-end space-x-4 mt-6">
-                            <button type="button" id="cancelEditTaskBtn" class="px-6 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">Cancel</button>
-                            <button type="submit" class="px-6 py-2 rounded-lg bg-blue-600 text-white font-semibold hover:bg-blue-700 transition-colors">Save Changes</button>
-                        </div>
-                    </form>
-                </div>
-            `;
-            document.body.appendChild(overlay);
-
-            setTimeout(() => {
-                document.getElementById('editTaskModalContent').classList.remove('scale-95', 'opacity-0');
-            }, 10);
-
-            document.getElementById('editTaskForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                task.description = document.getElementById('editTaskDescription').value;
-                task.dueDate = document.getElementById('editTaskDueDate').value;
-                task.priority = document.getElementById('editTaskPriority').value;
-                
-                renderTasks();
-                saveDataToLocalStorage(); // Save to Local Storage
-                showNotification('Task updated successfully!', 'success');
-                overlay.remove();
-            });
-
-            document.getElementById('cancelEditTaskBtn').addEventListener('click', function() {
-                overlay.remove();
-            });
-        }
-
-        function deleteTask(event) {
-            const index = event.target.dataset.index;
-            const overlay = document.createElement('div');
-            overlay.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 fade-in';
-            overlay.innerHTML = `
-                <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-sm mx-4 transform scale-95 opacity-0 transition-all duration-300" id="confirmTaskModalContent">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center">Confirm Deletion</h3>
-                    <p class="text-gray-600 mb-6 text-center">Are you sure you want to delete "${tasks[index].description}"?</p>
-                    <div class="flex justify-center space-x-4">
-                        <button type="button" id="cancelDeleteTaskBtn" class="px-6 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">Cancel</button>
-                        <button type="button" id="confirmDeleteTaskBtn" class="px-6 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors">Delete</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(overlay);
-
-            setTimeout(() => {
-                document.getElementById('confirmTaskModalContent').classList.remove('scale-95', 'opacity-0');
-            }, 10);
-
-            document.getElementById('confirmDeleteTaskBtn').addEventListener('click', function() {
-                tasks.splice(index, 1);
-                renderTasks();
-                saveDataToLocalStorage(); // Save to Local Storage
-                showNotification('Task deleted successfully!', 'success');
-                overlay.remove();
-            });
-
-            document.getElementById('cancelDeleteTaskBtn').addEventListener('click', function() {
-                overlay.remove();
-            });
+            if (currentTaskFilter === 'all') {
+                filterAll.classList.add('bg-blue-500', 'text-white');
+                filterAll.classList.remove('bg-gray-200', 'text-gray-700');
+            } else if (currentTaskFilter === 'pending') {
+                filterPending.classList.add('bg-blue-500', 'text-white');
+                filterPending.classList.remove('bg-gray-200', 'text-gray-700');
+            } else if (currentTaskFilter === 'completed') {
+                filterCompleted.classList.add('bg-blue-500', 'text-white');
+                filterCompleted.classList.remove('bg-gray-200', 'text-gray-700');
+            } else if (currentTaskFilter === 'high') {
+                filterHigh.classList.add('bg-blue-500', 'text-white');
+                filterHigh.classList.remove('bg-gray-200', 'text-gray-700');
+            }
         }
 
         // --- Expense Functions ---
+        function addExpense(event) {
+            event.preventDefault();
+            const expenseName = document.getElementById('expenseName').value.trim();
+            const expenseAmount = parseFloat(document.getElementById('expenseAmount').value);
+            const expenseDate = document.getElementById('expenseDate').value;
+            const expenseCategory = document.getElementById('expenseCategory').value;
+
+            if (!expenseName || isNaN(expenseAmount) || expenseAmount < 0 || !expenseDate) {
+                showNotification('Please fill in all expense fields with valid data.', 'error');
+                return;
+            }
+
+            expenses.push({
+                id: Date.now(),
+                name: expenseName,
+                amount: expenseAmount,
+                date: expenseDate,
+                category: expenseCategory
+            });
+            saveDataToLocalStorage();
+            renderExpenses();
+            updateOverallFinancialSummary();
+            expenseForm.reset();
+            showNotification('Expense added successfully!', 'success');
+        }
+
         function renderExpenses() {
             expenseList.innerHTML = '';
             if (expenses.length === 0) {
                 noExpensesMessage.classList.remove('hidden');
             } else {
                 noExpensesMessage.classList.add('hidden');
+                expenses.forEach(expense => {
+                    const row = document.createElement('tr');
+                    row.className = 'hover:bg-gray-50 transition-colors fade-in';
+                    row.innerHTML = `
+                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">${expense.name}</td>
+                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">${expense.category}</td>
+                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200 font-semibold">R${expense.amount.toFixed(2)}</td>
+                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">${expense.date}</td>
+                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">
+                            <button data-id="${expense.id}" class="delete-expense-btn text-red-600 hover:text-red-800 transition-colors p-1 rounded-full hover:bg-red-100">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm2 3a1 1 0 011-1h4a1 1 0 110 2H9a1 1 0 01-1-1zm0 3a1 1 0 011-1h4a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </button>
+                        </td>
+                    `;
+                    expenseList.appendChild(row);
+                });
             }
+            attachExpenseEventListeners();
+        }
 
-            expenses.forEach((expense, index) => {
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-gray-50 transition-colors fade-in';
-                row.innerHTML = `
-                    <td class="py-4 px-6 border-b border-gray-200 font-medium">${expense.name}</td>
-                    <td class="py-4 px-6 border-b border-gray-200">
-                        <span class="px-2 py-1 text-xs rounded-full bg-red-100 text-red-800">${expense.category}</span>
-                    </td>
-                    <td class="py-4 px-6 border-b border-gray-200">R${expense.amount.toFixed(2)}</td>
-                    <td class="py-4 px-6 border-b border-gray-200">${expense.date}</td>
-                    <td class="py-4 px-6 border-b border-gray-200">
-                        <button data-index="${index}" class="edit-expense-btn text-blue-600 hover:text-blue-800 font-semibold mr-3 transition-colors">✏️ Edit</button>
-                        <button data-index="${index}" class="delete-expense-btn text-red-600 hover:text-red-800 font-semibold transition-colors">🗑️ Delete</button>
-                    </td>
-                `;
-                expenseList.appendChild(row);
-            });
-
-            document.querySelectorAll('.edit-expense-btn').forEach(button => {
-                button.addEventListener('click', editExpenseItem);
-            });
+        function attachExpenseEventListeners() {
             document.querySelectorAll('.delete-expense-btn').forEach(button => {
-                button.addEventListener('click', deleteExpenseItem);
-            });
-            updateOverallFinancialSummary();
-        }
-
-        function addExpense(event) {
-            event.preventDefault();
-            const name = document.getElementById('expenseName').value;
-            const amount = parseFloat(document.getElementById('expenseAmount').value);
-            const date = document.getElementById('expenseDate').value;
-            const category = document.getElementById('expenseCategory').value;
-
-            expenses.push({ name, amount, date, category });
-            expenseForm.reset();
-            renderExpenses();
-            saveDataToLocalStorage(); // Save to Local Storage
-            showNotification('Expense added successfully!', 'success');
-        }
-
-        function editExpenseItem(event) {
-            const index = event.target.dataset.index;
-            const expense = expenses[index];
-
-            const overlay = document.createElement('div');
-            overlay.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 fade-in';
-            overlay.innerHTML = `
-                <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-md mx-4 transform scale-95 opacity-0 transition-all duration-300" id="editExpenseModalContent">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-6 text-center">Edit Expense</h3>
-                    <form id="editExpenseForm" class="space-y-4">
-                        <div>
-                            <label for="editExpenseName" class="block text-sm font-medium text-gray-700 mb-1">Expense Name</label>
-                            <input type="text" id="editExpenseName" value="${expense.name}" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" required>
-                        </div>
-                        <div>
-                            <label for="editExpenseAmount" class="block text-sm font-medium text-gray-700 mb-1">Amount (R)</label>
-                            <input type="number" id="editExpenseAmount" step="0.01" value="${expense.amount}" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" required min="0">
-                        </div>
-                        <div>
-                            <label for="editExpenseDate" class="block text-sm font-medium text-gray-700 mb-1">Date</label>
-                            <input type="date" id="editExpenseDate" value="${expense.date}" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all" required>
-                        </div>
-                        <div>
-                            <label for="editExpenseCategory" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
-                            <select id="editExpenseCategory" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all">
-                                <option value="Operating" ${expense.category === 'Operating' ? 'selected' : ''}>Operating</option>
-                                <option value="Marketing" ${expense.category === 'Marketing' ? 'selected' : ''}>Marketing</option>
-                                <option value="Logistics" ${expense.category === 'Logistics' ? 'selected' : ''}>Logistics</option>
-                                <option value="Salaries" ${expense.category === 'Salaries' ? 'selected' : ''}>Salaries</option>
-                                <option value="Other" ${expense.category === 'Other' ? 'selected' : ''}>Other</option>
-                            </select>
-                        </div>
-                        <div class="flex justify-end space-x-4 mt-6">
-                            <button type="button" id="cancelEditExpenseBtn" class="px-6 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">Cancel</button>
-                            <button type="submit" class="px-6 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors">Save Changes</button>
-                        </div>
-                    </form>
-                </div>
-            `;
-            document.body.appendChild(overlay);
-
-            setTimeout(() => {
-                document.getElementById('editExpenseModalContent').classList.remove('scale-95', 'opacity-0');
-            }, 10);
-
-            document.getElementById('editExpenseForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                expense.name = document.getElementById('editExpenseName').value;
-                expense.amount = parseFloat(document.getElementById('editExpenseAmount').value);
-                expense.date = document.getElementById('editExpenseDate').value;
-                expense.category = document.getElementById('editExpenseCategory').value;
-                
-                renderExpenses();
-                saveDataToLocalStorage(); // Save to Local Storage
-                showNotification('Expense updated successfully!', 'success');
-                overlay.remove();
-            });
-
-            document.getElementById('cancelEditExpenseBtn').addEventListener('click', function() {
-                overlay.remove();
+                button.onclick = (e) => {
+                    const id = parseInt(e.currentTarget.dataset.id);
+                    expenses = expenses.filter(expense => expense.id !== id);
+                    saveDataToLocalStorage();
+                    renderExpenses();
+                    updateOverallFinancialSummary();
+                    showNotification('Expense deleted.', 'info');
+                };
             });
         }
 
-        function deleteExpenseItem(event) {
-            const index = event.target.dataset.index;
-            const overlay = document.createElement('div');
-            overlay.className = 'fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 fade-in';
-            overlay.innerHTML = `
-                <div class="bg-white p-8 rounded-lg shadow-xl w-full max-w-sm mx-4 transform scale-95 opacity-0 transition-all duration-300" id="confirmExpenseModalContent">
-                    <h3 class="text-2xl font-bold text-gray-800 mb-4 text-center">Confirm Deletion</h3>
-                    <p class="text-gray-600 mb-6 text-center">Are you sure you want to delete the expense "${expenses[index].name}"?</p>
-                    <div class="flex justify-center space-x-4">
-                        <button type="button" id="cancelDeleteExpenseBtn" class="px-6 py-2 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-colors">Cancel</button>
-                        <button type="button" id="confirmDeleteExpenseBtn" class="px-6 py-2 rounded-lg bg-red-600 text-white font-semibold hover:bg-red-700 transition-colors">Delete</button>
-                    </div>
-                </div>
-            `;
-            document.body.appendChild(overlay);
-
-            setTimeout(() => {
-                document.getElementById('confirmExpenseModalContent').classList.remove('scale-95', 'opacity-0');
-            }, 10);
-
-            document.getElementById('confirmDeleteExpenseBtn').addEventListener('click', function() {
-                expenses.splice(index, 1);
-                renderExpenses();
-                saveDataToLocalStorage(); // Save to Local Storage
-                showNotification('Expense deleted successfully!', 'success');
-                overlay.remove();
+        // --- Navigation Logic ---
+        function showSection(sectionId) {
+            document.querySelectorAll('section').forEach(section => {
+                section.classList.add('hidden');
             });
+            document.getElementById(sectionId).classList.remove('hidden');
 
-            document.getElementById('cancelDeleteExpenseBtn').addEventListener('click', function() {
-                overlay.remove();
-            });
-        }
+            // Update active navigation button style
+            navInventory.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'hover:from-blue-600', 'hover:to-blue-700', 'text-white');
+            navInventory.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+            navTasks.classList.remove('bg-gradient-to-r', 'from-green-500', 'to-green-600', 'hover:from-green-600', 'hover:to-green-700', 'text-white');
+            navTasks.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+            navExpenses.classList.remove('bg-gradient-to-r', 'from-red-500', 'to-red-600', 'hover:from-red-600', 'hover:to-red-700', 'text-white');
+            navExpenses.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
 
-        // --- Task Filter Buttons Event Listeners ---
-        filterAll.addEventListener('click', () => { currentTaskFilter = 'all'; renderTasks(); updateTaskFilterButtons('all'); });
-        filterPending.addEventListener('click', () => { currentTaskFilter = 'pending'; renderTasks(); updateTaskFilterButtons('pending'); });
-        filterCompleted.addEventListener('click', () => { currentTaskFilter = 'completed'; renderTasks(); updateTaskFilterButtons('completed'); });
-        filterHigh.addEventListener('click', () => { currentTaskFilter = 'high'; renderTasks(); updateTaskFilterButtons('high'); });
+            if (sectionId === 'inventory-section') {
+                navInventory.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'hover:from-blue-600', 'hover:to-blue-700', 'text-white');
+                navInventory.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+            } else if (sectionId === 'tasks-section') {
+                navTasks.classList.add('bg-gradient-to-r', 'from-green-500', 'to-green-600', 'hover:from-green-600', 'hover:to-green-700', 'text-white');
+                navTasks.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+            } else if (sectionId === 'expenses-section') {
+                navExpenses.classList.add('bg-gradient-to-r', 'from-red-500', 'to-red-600', 'hover:from-red-600', 'hover:to-red-700', 'text-white');
+                navExpenses.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+            }
 
-        function updateTaskFilterButtons(activeFilter) {
-            const buttons = [filterAll, filterPending, filterCompleted, filterHigh];
-            buttons.forEach(button => {
-                if (button.id === `filter${activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)}`) {
-                    button.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-                    button.classList.add('bg-blue-500', 'text-white', 'hover:bg-blue-600');
-                } else {
-                    button.classList.remove('bg-blue-500', 'text-white', 'hover:bg-blue-600');
-                    button.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-                }
-            });
-        }
-
-        // --- Section switching logic ---
-        function switchSection(sectionId) {
-            document.getElementById('inventory-section').classList.add('hidden');
-            document.getElementById('tasks-section').classList.add('hidden');
-            document.getElementById('expenses-section').classList.add('hidden');
-
-            navInventory.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'text-white');
-            navInventory.classList.add('bg-gray-200', 'text-gray-700');
-            navTasks.classList.remove('bg-gradient-to-r', 'from-green-500', 'to-green-600', 'text-white');
-            navTasks.classList.add('bg-gray-200', 'text-gray-700');
-            navExpenses.classList.remove('bg-gradient-to-r', 'from-red-500', 'to-red-600', 'text-white');
-            navExpenses.classList.add('bg-gray-200', 'text-gray-700');
-
-            if (sectionId === 'inventory') {
-                document.getElementById('inventory-section').classList.remove('hidden');
-                navInventory.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'text-white');
-                navInventory.classList.remove('bg-gray-200', 'text-gray-700');
-                renderInventory(); 
-            } else if (sectionId === 'tasks') {
-                document.getElementById('tasks-section').classList.remove('hidden');
-                navTasks.classList.add('bg-gradient-to-r', 'from-green-500', 'to-green-600', 'text-white');
-                navTasks.classList.remove('bg-gray-200', 'text-gray-700');
-                renderTasks(); 
-            } else if (sectionId === 'expenses') {
-                document.getElementById('expenses-section').classList.remove('hidden');
-                navExpenses.classList.add('bg-gradient-to-r', 'from-red-500', 'to-red-600', 'text-white');
-                navExpenses.classList.remove('bg-gray-200', 'text-gray-700');
-                renderExpenses(); 
+            // Hide mobile menu if open after selection
+            if (!mainNav.classList.contains('mobile-nav-hidden') && window.innerWidth < 768) {
+                mainNav.classList.add('mobile-nav-hidden');
+                mainNav.classList.remove('mobile-nav-show');
             }
         }
 
-        // --- PDF Export and JSON Import ---
+        // --- Export/Import Functions ---
         function exportData() {
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
+            showLoading('Preparing PDF export...');
+            setTimeout(() => { // Simulate loading time for PDF generation
+                try {
+                    const { jsPDF } = window.jspdf;
+                    const doc = new jsPDF();
 
-            let yPos = 20;
+                    // Title
+                    doc.setFontSize(22);
+                    doc.text("Cloudsoft Business Manager Report", 10, 20);
+                    doc.setFontSize(10);
+                    doc.text(`Report Date: ${new Date().toLocaleDateString()}`, 10, 27);
 
-            // Add title
-            doc.setFontSize(22);
-            doc.text("Cloudsoft Inventory & Task Report", 105, yPos, { align: 'center' });
-            yPos += 15;
+                    let yPos = 40;
 
-            // Add date
-            doc.setFontSize(10);
-            doc.text(`Date: ${new Date().toLocaleDateString()}`, 105, yPos, { align: 'center' });
-            yPos += 20;
+                    // Inventory Section
+                    doc.setFontSize(16);
+                    doc.text("📦 Inventory Overview", 10, yPos);
+                    yPos += 10;
 
-            // Financial Summary Section
-            doc.setFontSize(16);
-            doc.text("Financial Summary", 14, yPos);
-            yPos += 10;
-            let totalCP = 0;
-            let totalSP = 0;
-            let totalExp = 0;
-            let totalItemsInInventory = 0; // Declare and initialize // HIGHLIGHT_START
+                    const inventoryHeaders = [['Product Name', 'Category', 'Quantity', 'Cost Price (R)', 'Selling Price (R)', 'Total Value (R)']];
+                    const inventoryData = inventory.map(item => [
+                        item.productName,
+                        item.category,
+                        item.quantity,
+                        item.costPrice.toFixed(2),
+                        item.sellingPrice.toFixed(2),
+                        (item.quantity * item.sellingPrice).toFixed(2)
+                    ]);
 
-            inventory.forEach(item => {
-                totalCP += item.quantity * item.costPrice;
-                totalSP += item.quantity * item.sellingPrice;
-                totalItemsInInventory += item.quantity; // Calculate total items // HIGHLIGHT_END
-            });
-            expenses.forEach(expense => {
-                totalExp += expense.amount;
-            });
-            const netProfit = totalSP - totalCP - totalExp;
+                    doc.autoTable({
+                        startY: yPos,
+                        head: inventoryHeaders,
+                        body: inventoryData,
+                        theme: 'grid',
+                        headStyles: { fillColor: [59, 130, 246] }, // Blue-500
+                        styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' },
+                        didDrawPage: function (data) {
+                            yPos = data.cursor.y + 10; // Update yPos after table
+                        }
+                    });
 
-            doc.setFontSize(10);
-            doc.text(`Total Cost Value: R${totalCP.toFixed(2)}`, 14, yPos);
-            yPos += 7;
-            doc.text(`Total Selling Value: R${totalSP.toFixed(2)}`, 14, yPos);
-            yPos += 7;
-            doc.text(`Total Expenses: R${totalExp.toFixed(2)}`, 14, yPos);
-            yPos += 7;
-            doc.text(`Total Inventory Items: ${totalItemsInInventory}`, 14, yPos); // Add to PDF // HIGHLIGHT_START
-            yPos += 7; // Adjust yPos // HIGHLIGHT_END
-            doc.setFontSize(12);
-            doc.setTextColor(netProfit >= 0 ? '#10B981' : '#EF4444'); // Green for profit, red for loss
-            doc.text(`Net Profit: R${netProfit.toFixed(2)}`, 14, yPos);
-            doc.setTextColor(0, 0, 0); // Reset text color
-            yPos += 15;
-
-
-            // Inventory Section
-            doc.setFontSize(16);
-            doc.text("Inventory Summary", 14, yPos);
-            yPos += 10;
-
-            if (inventory.length === 0) {
-                doc.setFontSize(12);
-                doc.text("No inventory items found.", 14, yPos);
-                yPos += 10;
-            } else {
-                doc.setFontSize(10);
-                const inventoryHeaders = ["Product Name", "Category", "Quantity", "Cost Price (R)", "Selling Price (R)"];
-                const inventoryData = inventory.map(item => [
-                    item.productName,
-                    item.category,
-                    item.quantity,
-                    item.costPrice.toFixed(2),
-                    item.sellingPrice.toFixed(2)
-                ]);
-
-                doc.autoTable({
-                    startY: yPos,
-                    head: [inventoryHeaders],
-                    body: inventoryData,
-                    theme: 'grid',
-                    styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' },
-                    headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0] },
-                    margin: { left: 10, right: 10 }
-                });
-                yPos = doc.autoTable.previous.finalY + 10;
-            }
-
-            // Expenses Section
-            if (yPos + 30 > doc.internal.pageSize.height) { // Check if new page needed
-                doc.addPage();
-                yPos = 20;
-            }
-            doc.setFontSize(16);
-            doc.text("Expenses Summary", 14, yPos);
-            yPos += 10;
-
-            if (expenses.length === 0) {
-                doc.setFontSize(12);
-                doc.text("No expenses recorded.", 14, yPos);
-                yPos += 10;
-            } else {
-                doc.setFontSize(10);
-                const expenseHeaders = ["Expense Name", "Category", "Amount (R)", "Date"];
-                const expenseData = expenses.map(expense => [
-                    expense.name,
-                    expense.category,
-                    expense.amount.toFixed(2),
-                    expense.date
-                ]);
-
-                doc.autoTable({
-                    startY: yPos,
-                    head: [expenseHeaders],
-                    body: expenseData,
-                    theme: 'grid',
-                    styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' },
-                    headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0] },
-                    margin: { left: 10, right: 10 }
-                });
-                yPos = doc.autoTable.previous.finalY + 10;
-            }
+                    // Financial Summary
+                    doc.setFontSize(14);
+                    doc.text("📊 Financial Summary", 10, doc.autoTable.previous.finalY + 15);
+                    doc.setFontSize(10);
+                    const financialSummary = [
+                        ['Total Cost Value:', `R${inventory.reduce((sum, item) => sum + (item.quantity * item.costPrice), 0).toFixed(2)}`],
+                        ['Total Selling Value:', `R${inventory.reduce((sum, item) => sum + (item.quantity * item.sellingPrice), 0).toFixed(2)}`],
+                        ['Total Expenses:', `R${expenses.reduce((sum, expense) => sum + expense.amount, 0).toFixed(2)}`],
+                        ['Net Profit:', `R${(inventory.reduce((sum, item) => sum + (item.quantity * item.sellingPrice), 0) - inventory.reduce((sum, item) => sum + (item.quantity * item.costPrice), 0) - expenses.reduce((sum, expense) => sum + expense.amount, 0)).toFixed(2)}`]
+                    ];
+                    doc.autoTable({
+                        startY: doc.autoTable.previous.finalY + 20,
+                        body: financialSummary,
+                        theme: 'plain',
+                        styles: { fontSize: 10, cellPadding: 2 },
+                        columnStyles: { 0: { fontStyle: 'bold' } },
+                        didDrawPage: function (data) {
+                            yPos = data.cursor.y + 10;
+                        }
+                    });
 
 
-            // Tasks Section
-            if (yPos + 30 > doc.internal.pageSize.height) { // Check if new page needed
-                doc.addPage();
-                yPos = 20;
-            }
-            doc.setFontSize(16);
-            doc.text("Task List", 14, yPos);
-            yPos += 10;
+                    // Tasks Section
+                    if (tasks.length > 0) {
+                        doc.addPage();
+                        yPos = 20; // Reset yPos for new page
+                        doc.setFontSize(16);
+                        doc.text("✓ Task List", 10, yPos);
+                        yPos += 10;
 
-            if (tasks.length === 0) {
-                doc.setFontSize(12);
-                doc.text("No tasks found.", 14, yPos);
-                yPos += 10;
-            } else {
-                doc.setFontSize(10);
-                const taskHeaders = ["Description", "Due Date", "Priority", "Status"];
-                const taskData = tasks.map(task => [
-                    task.description,
-                    task.dueDate || 'N/A',
-                    task.priority,
-                    task.completed ? 'Completed' : 'Pending'
-                ]);
+                        const taskHeaders = [['Description', 'Due Date', 'Priority', 'Status']];
+                        const taskData = tasks.map(task => [
+                            task.description,
+                            task.dueDate || 'N/A',
+                            task.priority,
+                            task.completed ? 'Completed' : 'Pending'
+                        ]);
 
-                doc.autoTable({
-                    startY: yPos,
-                    head: [taskHeaders],
-                    body: taskData,
-                    theme: 'grid',
-                    styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' },
-                    headStyles: { fillColor: [240, 240, 240], textColor: [0, 0, 0] },
-                    margin: { left: 10, right: 10 }
-                });
-                yPos = doc.autoTable.previous.finalY + 10;
-            }
+                        doc.autoTable({
+                            startY: yPos,
+                            head: taskHeaders,
+                            body: taskData,
+                            theme: 'grid',
+                            headStyles: { fillColor: [16, 185, 129] }, // Green-500
+                            styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' }
+                        });
+                    }
 
-            doc.save('cloudsoft_report.pdf');
-            showNotification('Data exported to PDF successfully!', 'success');
+                    // Expenses Section
+                    if (expenses.length > 0) {
+                        doc.addPage();
+                        yPos = 20; // Reset yPos for new page
+                        doc.setFontSize(16);
+                        doc.text("💸 Expense List", 10, yPos);
+                        yPos += 10;
+
+                        const expenseHeaders = [['Name', 'Category', 'Amount (R)', 'Date']];
+                        const expenseData = expenses.map(expense => [
+                            expense.name,
+                            expense.category,
+                            expense.amount.toFixed(2),
+                            expense.date
+                        ]);
+
+                        doc.autoTable({
+                            startY: yPos,
+                            head: expenseHeaders,
+                            body: expenseData,
+                            theme: 'grid',
+                            headStyles: { fillColor: [239, 68, 68] }, // Red-500
+                            styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' }
+                        });
+                    }
+
+                    doc.save('Cloudsoft_Business_Report.pdf');
+                    showNotification('PDF exported successfully!', 'success');
+                } catch (error) {
+                    console.error("Error exporting PDF:", error);
+                    showNotification('Error exporting PDF. Please try again.', 'error');
+                } finally {
+                    hideLoading();
+                }
+            }, 1000); // Small delay for effect
         }
 
-        function exportJsonData() {
-            const appData = {
-                inventory: inventory,
-                tasks: tasks,
-                expenses: expenses,
-                lastExported: new Date().toISOString()
-            };
-            const dataStr = JSON.stringify(appData, null, 2);
-            const blob = new Blob([dataStr], { type: "application/json" });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = 'cloudsoft_data.json';
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            showNotification('Data exported to JSON file!', 'success');
+        function importData() {
+            importFileInput.click(); // Trigger file input click
         }
 
-        function importData(event) {
+        function handleFileImport(event) {
             const file = event.target.files[0];
             if (!file) {
                 return;
             }
+
+            if (file.type !== 'application/json') {
+                showNotification('Please select a JSON file.', 'error');
+                return;
+            }
+
+            showLoading('Importing data...');
             const reader = new FileReader();
             reader.onload = (e) => {
                 try {
                     const importedData = JSON.parse(e.target.result);
-                    inventory = importedData.inventory || [];
-                    tasks = importedData.tasks || [];
-                    expenses = importedData.expenses || [];
-                    saveDataToLocalStorage(); // Save imported data to local storage
-                    renderAllSections();
-                    showNotification('Data imported successfully!', 'success');
+                    if (importedData.inventory && importedData.tasks && importedData.expenses) {
+                        inventory = importedData.inventory;
+                        tasks = importedData.tasks;
+                        expenses = importedData.expenses;
+                        saveDataToLocalStorage(); // Save imported data to local storage
+                        renderAllSections();
+                        showNotification('Data imported successfully!', 'success');
+                    } else {
+                        showNotification('Invalid JSON file format. Missing inventory, tasks, or expenses data.', 'error');
+                    }
                 } catch (error) {
-                    showNotification('Error importing data: Invalid JSON file.', 'error');
-                    console.error('Error importing data:', error);
+                    console.error("Error parsing imported JSON:", error);
+                    showNotification('Error processing file. Invalid JSON format.', 'error');
+                } finally {
+                    hideLoading();
+                    event.target.value = ''; // Clear file input
                 }
             };
+            reader.onerror = () => {
+                showNotification('Error reading file.', 'error');
+                hideLoading();
+                event.target.value = ''; // Clear file input
+            };
             reader.readAsText(file);
-            importFileInput.value = '';
-        }
-
-        // --- Task Filter Buttons Event Listeners ---
-        filterAll.addEventListener('click', () => { currentTaskFilter = 'all'; renderTasks(); updateTaskFilterButtons('all'); });
-        filterPending.addEventListener('click', () => { currentTaskFilter = 'pending'; renderTasks(); updateTaskFilterButtons('pending'); });
-        filterCompleted.addEventListener('click', () => { currentTaskFilter = 'completed'; renderTasks(); updateTaskFilterButtons('completed'); });
-        filterHigh.addEventListener('click', () => { currentTaskFilter = 'high'; renderTasks(); updateTaskFilterButtons('high'); });
-
-        function updateTaskFilterButtons(activeFilter) {
-            const buttons = [filterAll, filterPending, filterCompleted, filterHigh];
-            buttons.forEach(button => {
-                if (button.id === `filter${activeFilter.charAt(0).toUpperCase() + activeFilter.slice(1)}`) {
-                    button.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-                    button.classList.add('bg-blue-500', 'text-white', 'hover:bg-blue-600');
-                } else {
-                    button.classList.remove('bg-blue-500', 'text-white', 'hover:bg-blue-600');
-                    button.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-                }
-            });
-        }
-
-        // --- Section switching logic ---
-        function switchSection(sectionId) {
-            document.getElementById('inventory-section').classList.add('hidden');
-            document.getElementById('tasks-section').classList.add('hidden');
-            document.getElementById('expenses-section').classList.add('hidden');
-
-            navInventory.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'text-white');
-            navInventory.classList.add('bg-gray-200', 'text-gray-700');
-            navTasks.classList.remove('bg-gradient-to-r', 'from-green-500', 'to-green-600', 'text-white');
-            navTasks.classList.add('bg-gray-200', 'text-gray-700');
-            navExpenses.classList.remove('bg-gradient-to-r', 'from-red-500', 'to-red-600', 'text-white');
-            navExpenses.classList.add('bg-gray-200', 'text-gray-700');
-
-            if (sectionId === 'inventory') {
-                document.getElementById('inventory-section').classList.remove('hidden');
-                navInventory.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'text-white');
-                navInventory.classList.remove('bg-gray-200', 'text-gray-700');
-                renderInventory(); 
-            } else if (sectionId === 'tasks') {
-                document.getElementById('tasks-section').classList.remove('hidden');
-                navTasks.classList.add('bg-gradient-to-r', 'from-green-500', 'to-green-600', 'text-white');
-                navTasks.classList.remove('bg-gray-200', 'text-gray-700');
-                renderTasks(); 
-            } else if (sectionId === 'expenses') {
-                document.getElementById('expenses-section').classList.remove('hidden');
-                navExpenses.classList.add('bg-gradient-to-r', 'from-red-500', 'to-red-600', 'text-white');
-                navExpenses.classList.remove('bg-gray-200', 'text-gray-700');
-                renderExpenses(); 
-            }
         }
 
         // --- Event Listeners ---
-        window.onload = () => {
-            loadDataFromLocalStorage(); // Load data from local storage on load
+        document.addEventListener('DOMContentLoaded', () => {
+            loadDataFromLocalStorage();
+            renderAllSections();
+            showSection('inventory-section'); // Show inventory section by default
+        });
 
-            switchSection('inventory'); // Default to inventory on load
-            updateTaskFilterButtons('all'); // Set initial active filter button for tasks
+        inventoryForm.addEventListener('submit', addInventoryItem);
+        taskForm.addEventListener('submit', addTask);
+        expenseForm.addEventListener('submit', addExpense);
 
-            // Application event listeners
-            inventoryForm.addEventListener('submit', addInventoryItem);
-            taskForm.addEventListener('submit', addTask);
-            expenseForm.addEventListener('submit', addExpense);
-            navInventory.addEventListener('click', () => switchSection('inventory'));
-            navTasks.addEventListener('click', () => switchSection('tasks'));
-            navExpenses.addEventListener('click', () => switchSection('expenses'));
-            exportDataBtn.addEventListener('click', exportData); // Changed to export PDF
-            importDataBtn.addEventListener('click', () => importFileInput.click());
-            importFileInput.addEventListener('change', importData);
+        navInventory.addEventListener('click', () => showSection('inventory-section'));
+        navTasks.addEventListener('click', () => showSection('tasks-section'));
+        navExpenses.addEventListener('click', () => showSection('expenses-section'));
 
-            // Search and Filter Event Listeners
-            searchInventory.addEventListener('input', renderInventory);
-            filterCategory.addEventListener('change', renderInventory);
-            clearFilters.addEventListener('click', () => {
-                searchInventory.value = '';
-                filterCategory.value = '';
-                renderInventory();
-            });
-        };
+        searchInventory.addEventListener('input', (e) => renderInventory(e.target.value, filterCategory.value));
+        filterCategory.addEventListener('change', (e) => renderInventory(searchInventory.value, e.target.value));
+        clearFilters.addEventListener('click', () => {
+            searchInventory.value = '';
+            filterCategory.value = '';
+            renderInventory('', '');
+            showNotification('Inventory filters cleared.', 'info');
+        });
+
+        filterAll.addEventListener('click', () => { currentTaskFilter = 'all'; renderTasks(); });
+        filterPending.addEventListener('click', () => { currentTaskFilter = 'pending'; renderTasks(); });
+        filterCompleted.addEventListener('click', () => { currentTaskFilter = 'completed'; renderTasks(); });
+        filterHigh.addEventListener('click', () => { currentTaskFilter = 'high'; renderTasks(); });
+
+        exportDataBtn.addEventListener('click', exportData);
+        importDataBtn.addEventListener('click', importData);
+        importFileInput.addEventListener('change', handleFileImport);
+
+        // Mobile menu toggle listener
+        mobileMenuToggle.addEventListener('click', () => {
+            mainNav.classList.toggle('mobile-nav-hidden');
+            mainNav.classList.toggle('mobile-nav-show');
+        });
     </script>
 </body>
 </html>
