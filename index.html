@@ -15,7 +15,7 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <!-- Chosen Palette: Warm Neutrals (Slate, Zinc, Stone) -->
-    <!-- Application Structure Plan: This application combines a business management tool (Inventory, Tasks, Expenses) with a product catalogue. The structure uses a tabbed navigation approach for the main sections (Inventory, Tasks, Expenses, Catalogue). Each section is a distinct content block, hidden by default and revealed when its corresponding navigation button is clicked. The Catalogue section specifically features product cards displaying both Cost Price (CP) and Selling Price (SP), along with filter controls, a grouped bar chart for visual comparison, and a new form to add products that are saved locally. This design allows users to switch between different business functions and product insights seamlessly within a single page, providing a comprehensive management and informational tool. -->
+    <!-- Application Structure Plan: This application combines a business management tool (Inventory, Tasks, Expenses) with a product catalogue. The structure uses a tabbed navigation approach for the main sections (Inventory, Tasks, Expenses, Catalogue). Each section is a distinct content block, hidden by default and revealed when its corresponding navigation button is clicked. The Catalogue section specifically features product cards displaying both Cost Price (CP) and Selling Price (SP), along with filter controls, a grouped bar chart for visual comparison, a form to add products that are saved locally, and now a delete option for catalogue products. This design allows users to switch between different business functions and product insights seamlessly within a single page, providing a comprehensive management and informational tool. -->
     <!-- Visualization & Content Choices: 
         - Report Info (Inventory): Product Stock (Name, Qty, CP, SP). Goal: Manage & Summarize.
         - Viz/Presentation (Inventory): Table (HTML) for detailed item management, Donut Chart (Chart.js/Canvas) for visual distribution of inventory value.
@@ -23,10 +23,10 @@
         - Justification (Inventory): Table provides granular control, donut chart offers a quick visual summary of value distribution.
         - Library/Method (Inventory): Chart.js, Vanilla JS.
 
-        - Report Info (Catalogue): Fixed Product Data (Name, Specs, Cost Price, Selling Price) and now user-added products. Goal: Inform & Compare, Add Data.
+        - Report Info (Catalogue): Fixed Product Data (Name, Specs, Cost Price, Selling Price) and now user-added products. Goal: Inform & Compare, Add Data, Delete Data.
         - Viz/Presentation (Catalogue): Product Cards (HTML/Tailwind) for clear display of product details including CP and SP, Grouped Bar Chart (Chart.js/Canvas) for direct CP vs. SP comparison, Form (HTML/Tailwind) for data input.
-        - Interaction (Catalogue): Filter by product type (Toilet Paper, Refuse Bags, All), Add new products via form.
-        - Justification (Catalogue): Cards provide digestible product info, grouped bar chart is excellent for side-by-side metric comparison. Filtering enhances user focus. The new form allows for direct data entry and local persistence, making the catalogue dynamic and customizable.
+        - Interaction (Catalogue): Filter by product type (Toilet Paper, Refuse Bags, All), Add new products via form, Delete individual products.
+        - Justification (Catalogue): Cards provide digestible product info, grouped bar chart is excellent for side-by-side metric comparison. Filtering enhances user focus. The new form allows for direct data entry and local persistence, making the catalogue dynamic and customizable. The delete option provides full management capability.
         - Library/Method (Catalogue): Chart.js, Vanilla JS. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
@@ -988,6 +988,19 @@
             showNotification('Product added to catalogue!', 'success');
         }
 
+        function deleteCatalogueProduct(id) {
+            catalogueProductData = catalogueProductData.filter(product => product.id !== id);
+            saveData();
+            // Re-render the catalogue with the current filter applied
+            const filteredProducts = catalogueProductData.filter(p => {
+                if (currentCatalogueFilter === 'all') return true;
+                return p.category === currentCatalogueFilter;
+            });
+            renderCatalogueProductCards(filteredProducts);
+            renderOrUpdateCatalogueChart(filteredProducts);
+            showNotification('Catalogue product deleted.', 'info');
+        }
+
         const renderCatalogueProductCards = (products) => {
             catalogueProductGrid.innerHTML = '';
             if (products.length === 0) {
@@ -1023,6 +1036,9 @@
                             <p class="text-3xl font-bold text-green-700">R${product.price.toFixed(2)}</p>
                         </div>
                     </div>
+                    <button onclick="deleteCatalogueProduct(${product.id})" class="mt-4 w-full bg-red-500 text-white py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors duration-300 shadow-md">
+                        Delete Product
+                    </button>
                 `;
                 catalogueProductGrid.appendChild(card);
             });
@@ -1323,6 +1339,9 @@
         exportDataBtn.addEventListener('click', () => {
             showLoading('Generating PDF...');
             setTimeout(() => { // Simulate PDF generation time
+                // Ensure financial summary is up-to-date right before PDF generation
+                updateOverallFinancialSummary(); 
+
                 const { jsPDF } = window.jspdf;
                 const doc = new jsPDF();
 
