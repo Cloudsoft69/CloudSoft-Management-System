@@ -14,11 +14,26 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: Warm Neutrals (Slate, Zinc, Stone) -->
+    <!-- Application Structure Plan: This application combines a business management tool (Inventory, Tasks, Expenses) with a product catalogue. The structure uses a tabbed navigation approach for the main sections (Inventory, Tasks, Expenses, Catalogue). Each section is a distinct content block, hidden by default and revealed when its corresponding navigation button is clicked. The Catalogue section specifically features product cards displaying both Cost Price (CP) and Selling Price (SP), along with filter controls, a grouped bar chart for visual comparison, and a new form to add products that are saved locally. This design allows users to switch between different business functions and product insights seamlessly within a single page, providing a comprehensive management and informational tool. -->
+    <!-- Visualization & Content Choices: 
+        - Report Info (Inventory): Product Stock (Name, Qty, CP, SP). Goal: Manage & Summarize.
+        - Viz/Presentation (Inventory): Table (HTML) for detailed item management, Donut Chart (Chart.js/Canvas) for visual distribution of inventory value.
+        - Interaction (Inventory): Add/Edit/Delete items, Search, Filter by Category.
+        - Justification (Inventory): Table provides granular control, donut chart offers a quick visual summary of value distribution.
+        - Library/Method (Inventory): Chart.js, Vanilla JS.
+
+        - Report Info (Catalogue): Fixed Product Data (Name, Specs, Cost Price, Selling Price) and now user-added products. Goal: Inform & Compare, Add Data.
+        - Viz/Presentation (Catalogue): Product Cards (HTML/Tailwind) for clear display of product details including CP and SP, Grouped Bar Chart (Chart.js/Canvas) for direct CP vs. SP comparison, Form (HTML/Tailwind) for data input.
+        - Interaction (Catalogue): Filter by product type (Toilet Paper, Refuse Bags, All), Add new products via form.
+        - Justification (Catalogue): Cards provide digestible product info, grouped bar chart is excellent for side-by-side metric comparison. Filtering enhances user focus. The new form allows for direct data entry and local persistence, making the catalogue dynamic and customizable.
+        - Library/Method (Catalogue): Chart.js, Vanilla JS. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
         }
-        .chart-container {
+        .inventory-chart-container {
             position: relative;
             width: 100%;
             max-width: 500px;
@@ -26,9 +41,21 @@
             margin-right: auto;
             height: 250px;
         }
+        .catalogue-chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
         @media (max-width: 768px) {
-            .chart-container {
+            .inventory-chart-container {
                 height: 200px;
+            }
+            .catalogue-chart-container {
+                height: 300px;
             }
         }
         .fade-in {
@@ -144,6 +171,9 @@
                     <button id="nav-expenses" class="px-6 py-2 rounded-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 transition-all duration-200">
                         💸 Expenses
                     </button>
+                    <button id="nav-catalogue" class="px-6 py-2 rounded-lg font-semibold text-gray-700 bg-gray-200 hover:bg-gray-300 transition-all duration-200">
+                        📋 Catalogue
+                    </button>
                 </nav>
             </div>
         </header>
@@ -241,7 +271,7 @@
                             </div>
                             <!-- End New: Total Inventory Count -->
                         </div>
-                        <div class="flex-grow chart-container">
+                        <div class="flex-grow inventory-chart-container">
                             <canvas id="inventoryValueChart"></canvas>
                         </div>
                         <p class="text-sm text-gray-500 mt-4 text-center">Distribution of inventory value by product</p>
@@ -294,6 +324,7 @@
                     </p>
                 </div>
             </section>
+
             <!-- Tasks Section -->
             <section id="tasks-section" class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 hidden">
                 <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 text-center">✓ Task Management</h2>
@@ -411,6 +442,94 @@
                     </p>
                 </div>
             </section>
+
+            <!-- Product Catalogue Section -->
+            <section id="catalogue-section" class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 hidden">
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 text-center">📋 Interactive Product Catalogue</h2>
+                <p class="text-gray-600 mb-6 text-center text-sm sm:text-base">View and compare Cloudsoft's product pricing with interactive filters and visual charts.</p>
+                
+                <!-- Add Catalogue Product Form -->
+                <div class="p-6 border border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white shadow-sm mb-8">
+                    <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-4 flex items-center">
+                        <span class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm mr-2">+</span>
+                        Add New Catalogue Product
+                    </h3>
+                    <form id="catalogueProductForm" class="space-y-4">
+                        <div>
+                            <label for="catalogueProductName" class="block text-sm font-medium text-gray-700 mb-1">Product Name</label>
+                            <input type="text" id="catalogueProductName" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="Enter product name" required>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="catalogueSheets" class="block text-sm font-medium text-gray-700 mb-1">Sheets (Optional)</label>
+                                <input type="number" id="catalogueSheets" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="e.g., 200 or leave blank">
+                            </div>
+                            <div>
+                                <label for="cataloguePlies" class="block text-sm font-medium text-gray-700 mb-1">Plies (Optional)</label>
+                                <input type="number" id="cataloguePlies" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="e.g., 2 or leave blank">
+                            </div>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div>
+                                <label for="catalogueCostPrice" class="block text-sm font-medium text-gray-700 mb-1">Cost Price (R)</label>
+                                <input type="number" id="catalogueCostPrice" step="0.01" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="0.00" required min="0">
+                            </div>
+                            <div>
+                                <label for="catalogueSellingPrice" class="block text-sm font-medium text-gray-700 mb-1">Selling Price (R)</label>
+                                <input type="number" id="catalogueSellingPrice" step="0.01" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="0.00" required min="0">
+                            </div>
+                        </div>
+                        <div>
+                            <label for="catalogueCategory" class="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                            <select id="catalogueCategory" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all">
+                                <option value="Toilet Paper">Toilet Paper</option>
+                                <option value="Other">Other</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md">
+                            Add Product to Catalogue
+                        </button>
+                    </form>
+                </div>
+                
+                <!-- Catalogue Filters -->
+                <div class="mb-8">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-slate-700">Filter Products</h3>
+                        <p class="text-md text-stone-500">Select a category to refine the products shown below.</p>
+                    </div>
+                    <div class="flex justify-center items-center gap-2 sm:gap-4">
+                        <button data-filter="all" class="catalogue-filter-btn bg-slate-700 text-white py-2 px-5 rounded-full shadow-md hover:bg-slate-600 transition-colors duration-300">All Products</button>
+                        <button data-filter="Toilet Paper" class="catalogue-filter-btn bg-white text-slate-700 py-2 px-5 rounded-full shadow-md hover:bg-stone-100 transition-colors duration-300">Toilet Paper</button>
+                        <button data-filter="Other" class="catalogue-filter-btn bg-white text-slate-700 py-2 px-5 rounded-full shadow-md hover:bg-stone-100 transition-colors duration-300">Other</button>
+                    </div>
+                </div>
+
+                <!-- Product Cards Section -->
+                <div class="mb-12">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-slate-700">Product Details</h3>
+                        <p class="text-md text-stone-500">Here are the products based on your selection, including both cost and selling prices.</p>
+                    </div>
+                    <div id="catalogue-product-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                        <!-- Product cards will be dynamically inserted here -->
+                    </div>
+                    <div id="catalogue-no-results" class="text-center py-12 text-stone-500 hidden">
+                        <p class="text-xl">No products match the selected filter.</p>
+                    </div>
+                </div>
+
+                <!-- Chart Section -->
+                <div class="bg-stone-50 p-6 rounded-2xl shadow-sm">
+                    <div class="text-center mb-6">
+                        <h3 class="text-2xl font-bold text-slate-700">Cost vs. Selling Price Comparison</h3>
+                        <p class="text-md text-stone-500">This chart visually compares the cost price and selling price for each product, highlighting potential profit margins.</p>
+                    </div>
+                    <div class="catalogue-chart-container">
+                        <canvas id="cataloguePriceChart"></canvas>
+                    </div>
+                </div>
+            </section>
         </main>
     </div>
     <script>
@@ -419,7 +538,17 @@
         let tasks = [];
         let expenses = [];
         let inventoryChart = null;
+        let cataloguePriceChart = null; // Separate chart for catalogue
         let currentTaskFilter = 'all';
+        let currentCatalogueFilter = 'all'; // Separate filter for catalogue
+
+        // Fixed product data for the catalogue (now mutable)
+        let catalogueProductData = [
+            { id: 1, name: 'Toilet Paper', sheets: 350, plies: 2, price: 4.69, cp: 3.50, category: 'Toilet Paper' },
+            { id: 2, name: 'Toilet Paper', sheets: 200, plies: 2, price: 5.70, cp: 4.00, category: 'Toilet Paper' },
+            { id: 3, name: 'Toilet Paper', sheets: null, plies: 1, price: 6.23, cp: 4.50, category: 'Toilet Paper' },
+            { id: 4, name: 'Refuse Bags', sheets: null, plies: null, price: 18.70, cp: 12.00, category: 'Other' }
+        ];
 
         // --- DOM Elements ---
         const loadingOverlay = document.getElementById('loadingOverlay');
@@ -440,9 +569,13 @@
         const expenseForm = document.getElementById('expenseForm');
         const expenseList = document.getElementById('expenseList');
         const noExpensesMessage = document.getElementById('noExpensesMessage');
+
+        // Main Navigation Buttons
         const navInventory = document.getElementById('nav-inventory');
+        const navCatalogue = document.getElementById('nav-catalogue'); // New catalogue nav button
         const navTasks = document.getElementById('nav-tasks');
         const navExpenses = document.getElementById('nav-expenses');
+
         const exportDataBtn = document.getElementById('exportDataBtn');
         const importDataBtn = document.getElementById('importDataBtn');
         const importFileInput = document.getElementById('importFileInput');
@@ -451,14 +584,29 @@
         const totalInventoryCount = document.getElementById('totalInventoryCount');
 
         // Task Filter Buttons
-        const filterAll = document.getElementById('filterAll');
-        const filterPending = document.getElementById('filterPending');
-        const filterCompleted = document.getElementById('filterCompleted');
-        const filterHigh = document.getElementById('filterHigh');
+        const filterAllTasks = document.getElementById('filterAll');
+        const filterPendingTasks = document.getElementById('filterPending');
+        const filterCompletedTasks = document.getElementById('filterCompleted');
+        const filterHighTasks = document.getElementById('filterHigh');
 
         // Mobile Menu Toggle
         const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
         const mainNav = document.getElementById('main-nav');
+
+        // Catalogue specific DOM elements
+        const catalogueProductForm = document.getElementById('catalogueProductForm'); // New form
+        const catalogueProductName = document.getElementById('catalogueProductName');
+        const catalogueSheets = document.getElementById('catalogueSheets');
+        const cataloguePlies = document.getElementById('cataloguePlies');
+        const catalogueCostPrice = document.getElementById('catalogueCostPrice');
+        const catalogueSellingPrice = document.getElementById('catalogueSellingPrice');
+        const catalogueCategory = document.getElementById('catalogueCategory');
+
+        const catalogueProductGrid = document.getElementById('catalogue-product-grid');
+        const catalogueNoResultsMessage = document.getElementById('catalogue-no-results');
+        const catalogueFilterButtons = document.querySelectorAll('#catalogue-section .catalogue-filter-btn');
+        const cataloguePriceChartCanvas = document.getElementById('cataloguePriceChart');
+
 
         // --- Utility Functions ---
         function showNotification(message, type = 'info') {
@@ -477,13 +625,6 @@
 
         function hideLoading() {
             loadingOverlay.classList.add('hidden');
-        }
-
-        function renderAllSections() {
-            renderInventory();
-            renderTasks();
-            renderExpenses();
-            updateOverallFinancialSummary();
         }
 
         function wrapLabel(label, maxLength = 16) {
@@ -514,96 +655,98 @@
             }
         }
 
-        // --- Local Storage Data Operations ---
-        function saveDataToLocalStorage() {
-            const appData = {
-                inventory: inventory,
-                tasks: tasks,
-                expenses: expenses,
-                lastSaved: new Date().toISOString()
-            };
+        // --- Data Persistence (Local Storage) ---
+        function saveData() {
             try {
-                localStorage.setItem('cloudsoft_app_data', JSON.stringify(appData));
-                autoSaveStatus.textContent = `✓ Last saved: ${new Date().toLocaleTimeString()}`;
-                // No notification for every auto-save to avoid spamming, but useful for debugging
-                // showNotification('Data saved to local storage!', 'success');
+                localStorage.setItem('cloudsoftInventory', JSON.stringify(inventory));
+                localStorage.setItem('cloudsoftTasks', JSON.stringify(tasks));
+                localStorage.setItem('cloudsoftExpenses', JSON.stringify(expenses));
+                localStorage.setItem('cloudsoftCatalogueProducts', JSON.stringify(catalogueProductData)); // Save catalogue data
+                autoSaveStatus.textContent = '✓ Auto-save enabled (Local Storage)';
+                autoSaveStatus.classList.remove('text-red-600');
+                autoSaveStatus.classList.add('text-green-600');
             } catch (e) {
-                console.error("Error saving to local storage: ", e);
-                autoSaveStatus.textContent = '⚠ Local save failed';
-                showNotification('Error saving data locally.', 'error');
+                console.error("Error saving data to local storage:", e);
+                autoSaveStatus.textContent = '✗ Auto-save failed! Data might not be saved.';
+                autoSaveStatus.classList.remove('text-green-600');
+                autoSaveStatus.classList.add('text-red-600');
+                showNotification('Failed to save data automatically. Please check browser storage.', 'error');
             }
         }
 
-        function loadDataFromLocalStorage() {
-            showLoading('Loading data from local storage...');
+        function loadData() {
+            showLoading('Loading your data...');
             try {
-                const storedData = localStorage.getItem('cloudsoft_app_data');
-                if (storedData) {
-                    const loadedData = JSON.parse(storedData);
-                    inventory = loadedData.inventory || [];
-                    tasks = loadedData.tasks || [];
-                    expenses = loadedData.expenses || [];
-                    autoSaveStatus.textContent = `✓ Last loaded: ${new Date().toLocaleTimeString()}`;
-                    showNotification('Data loaded from local storage!', 'success');
-                } else {
-                    console.log("No data found in local storage. Starting fresh.");
-                    showNotification('No saved data found. Starting fresh.', 'info');
-                }
+                const savedInventory = localStorage.getItem('cloudsoftInventory');
+                const savedTasks = localStorage.getItem('cloudsoftTasks');
+                const savedExpenses = localStorage.getItem('cloudsoftExpenses');
+                const savedCatalogueProducts = localStorage.getItem('cloudsoftCatalogueProducts'); // Load catalogue data
+
+                inventory = savedInventory ? JSON.parse(savedInventory) : [];
+                tasks = savedTasks ? JSON.parse(savedTasks) : [];
+                expenses = savedExpenses ? JSON.parse(savedExpenses) : [];
+                catalogueProductData = savedCatalogueProducts ? JSON.parse(savedCatalogueProducts) : [ // Use default if no saved data
+                    { id: 1, name: 'Toilet Paper', sheets: 350, plies: 2, price: 4.69, cp: 3.50, category: 'Toilet Paper' },
+                    { id: 2, name: 'Toilet Paper', sheets: 200, plies: 2, price: 5.70, cp: 4.00, category: 'Toilet Paper' },
+                    { id: 3, name: 'Toilet Paper', sheets: null, plies: 1, price: 6.23, cp: 4.50, category: 'Toilet Paper' },
+                    { id: 4, name: 'Refuse Bags', sheets: null, plies: null, price: 18.70, cp: 12.00, category: 'Other' }
+                ];
+
+                showNotification('Data loaded successfully!', 'success');
             } catch (e) {
-                console.error("Error loading from local storage: ", e);
-                showNotification('Error loading data from local storage.', 'error');
+                console.error("Error loading data from local storage:", e);
+                showNotification('Failed to load data from local storage. Starting fresh.', 'error');
+                inventory = [];
+                tasks = [];
+                expenses = [];
+                catalogueProductData = [ // Reset to default if error
+                    { id: 1, name: 'Toilet Paper', sheets: 350, plies: 2, price: 4.69, cp: 3.50, category: 'Toilet Paper' },
+                    { id: 2, name: 'Toilet Paper', sheets: 200, plies: 2, price: 5.70, cp: 4.00, category: 'Toilet Paper' },
+                    { id: 3, name: 'Toilet Paper', sheets: null, plies: 1, price: 6.23, cp: 4.50, category: 'Toilet Paper' },
+                    { id: 4, name: 'Refuse Bags', sheets: null, plies: null, price: 18.70, cp: 12.00, category: 'Other' }
+                ];
             } finally {
                 hideLoading();
+                renderAllSections(); // Render all sections after loading data
             }
         }
 
         // --- Inventory Functions ---
-        function addInventoryItem(event) {
-            event.preventDefault();
-            const productName = document.getElementById('productName').value.trim();
-            const quantity = parseInt(document.getElementById('quantity').value);
-            const category = document.getElementById('category').value;
-            const costPrice = parseFloat(document.getElementById('costPrice').value);
-            const sellingPrice = parseFloat(document.getElementById('sellingPrice').value);
-
-            if (!productName || isNaN(quantity) || quantity < 0 || isNaN(costPrice) || costPrice < 0 || isNaN(sellingPrice) || sellingPrice < 0) {
-                showNotification('Please fill in all fields with valid numbers (quantity, cost, selling price cannot be negative).', 'error');
-                return;
-            }
-
-            const totalValue = quantity * sellingPrice;
-
-            inventory.push({
+        function addInventoryItem(name, quantity, category, cp, sp) {
+            const newItem = {
                 id: Date.now(),
-                productName,
-                quantity,
+                name,
+                quantity: parseInt(quantity),
                 category,
-                costPrice,
-                sellingPrice,
-                totalValue
-            });
-            saveDataToLocalStorage();
+                costPrice: parseFloat(cp),
+                sellingPrice: parseFloat(sp)
+            };
+            inventory.push(newItem);
+            saveData();
             renderInventory();
             updateOverallFinancialSummary();
-            inventoryForm.reset();
-            showNotification('Inventory item added successfully!', 'success');
+            showNotification('Inventory item added!', 'success');
         }
 
-        function renderInventory(searchTerm = '', filterCat = '') {
+        function deleteInventoryItem(id) {
+            inventory = inventory.filter(item => item.id !== id);
+            saveData();
+            renderInventory();
+            updateOverallFinancialSummary();
+            showNotification('Inventory item deleted.', 'info');
+        }
+
+        function renderInventory() {
             inventoryList.innerHTML = '';
-            let filteredInventory = inventory;
+            const searchTerm = searchInventory.value.toLowerCase();
+            const filterCat = filterCategory.value;
 
-            if (searchTerm) {
-                const lowerCaseSearchTerm = searchTerm.toLowerCase();
-                filteredInventory = filteredInventory.filter(item =>
-                    item.productName.toLowerCase().includes(lowerCaseSearchTerm) ||
-                    item.category.toLowerCase().includes(lowerCaseSearchTerm)
-                );
-            }
-
-            if (filterCat) {
-                filteredInventory = filteredInventory.filter(item => item.category === filterCat);
-            }
+            const filteredInventory = inventory.filter(item => {
+                const matchesSearch = item.name.toLowerCase().includes(searchTerm) ||
+                                      item.category.toLowerCase().includes(searchTerm);
+                const matchesCategory = filterCat === '' || item.category === filterCat;
+                return matchesSearch && matchesCategory;
+            });
 
             if (filteredInventory.length === 0) {
                 noInventoryMessage.classList.remove('hidden');
@@ -611,199 +754,141 @@
                 noInventoryMessage.classList.add('hidden');
                 filteredInventory.forEach(item => {
                     const row = document.createElement('tr');
-                    row.className = 'hover:bg-gray-50 transition-colors fade-in';
+                    row.className = 'hover:bg-gray-50 fade-in';
+                    const totalValue = (item.quantity * item.sellingPrice).toFixed(2);
                     row.innerHTML = `
-                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">${item.productName}</td>
-                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">${item.category}</td>
-                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">
-                            <input type="number" value="${item.quantity}" min="0" data-id="${item.id}" data-field="quantity"
-                                class="w-20 p-1 border rounded-md text-sm focus:ring-blue-400 focus:border-blue-400 quantity-input">
-                        </td>
-                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">R${item.costPrice.toFixed(2)}</td>
-                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">
-                            <input type="number" value="${item.sellingPrice.toFixed(2)}" step="0.01" min="0" data-id="${item.id}" data-field="sellingPrice"
-                                class="w-24 p-1 border rounded-md text-sm focus:ring-blue-400 focus:border-blue-400 selling-price-input">
-                        </td>
-                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200 font-semibold">R${(item.quantity * item.sellingPrice).toFixed(2)}</td>
-                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">
-                            <button data-id="${item.id}" class="delete-inventory-btn text-red-600 hover:text-red-800 transition-colors p-1 rounded-full hover:bg-red-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm2 3a1 1 0 011-1h4a1 1 0 110 2H9a1 1 0 01-1-1zm0 3a1 1 0 011-1h4a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd" />
-                                </svg>
-                            </button>
+                        <td class="py-3 px-3 sm:px-6 whitespace-nowrap text-sm font-medium text-gray-900">${item.name}</td>
+                        <td class="py-3 px-3 sm:px-6 whitespace-nowrap text-sm text-gray-600">${item.category}</td>
+                        <td class="py-3 px-3 sm:px-6 whitespace-nowrap text-sm text-gray-600">${item.quantity}</td>
+                        <td class="py-3 px-3 sm:px-6 whitespace-nowrap text-sm text-gray-600">R${item.costPrice.toFixed(2)}</td>
+                        <td class="py-3 px-3 sm:px-6 whitespace-nowrap text-sm text-gray-600">R${item.sellingPrice.toFixed(2)}</td>
+                        <td class="py-3 px-3 sm:px-6 whitespace-nowrap text-sm text-gray-600">R${totalValue}</td>
+                        <td class="py-3 px-3 sm:px-6 whitespace-nowrap text-right text-sm font-medium">
+                            <button onclick="deleteInventoryItem(${item.id})" class="text-red-600 hover:text-red-900 ml-2">Delete</button>
                         </td>
                     `;
                     inventoryList.appendChild(row);
                 });
             }
-            attachInventoryEventListeners();
+            updateInventoryChart();
+            totalInventoryCount.textContent = inventory.length;
         }
-
-        function attachInventoryEventListeners() {
-            document.querySelectorAll('.delete-inventory-btn').forEach(button => {
-                button.onclick = (e) => {
-                    const id = parseInt(e.currentTarget.dataset.id);
-                    inventory = inventory.filter(item => item.id !== id);
-                    saveDataToLocalStorage();
-                    renderInventory();
-                    updateOverallFinancialSummary();
-                    showNotification('Inventory item deleted.', 'info');
-                };
-            });
-
-            document.querySelectorAll('.quantity-input, .selling-price-input').forEach(input => {
-                input.onchange = (e) => {
-                    const id = parseInt(e.target.dataset.id);
-                    const field = e.target.dataset.field;
-                    let value = parseFloat(e.target.value);
-
-                    if (isNaN(value) || value < 0) {
-                        showNotification('Quantity and price must be non-negative numbers.', 'error');
-                        renderInventory(searchInventory.value, filterCategory.value); // Re-render to revert invalid input
-                        return;
-                    }
-
-                    const itemIndex = inventory.findIndex(item => item.id === id);
-                    if (itemIndex > -1) {
-                        inventory[itemIndex][field] = value;
-                        inventory[itemIndex].totalValue = inventory[itemIndex].quantity * inventory[itemIndex].sellingPrice;
-                        saveDataToLocalStorage();
-                        renderInventory(searchInventory.value, filterCategory.value); // Re-render to update total value and ensure consistency
-                        updateOverallFinancialSummary();
-                        showNotification('Inventory updated!', 'success');
-                    }
-                };
-            });
-        }
-
 
         function updateOverallFinancialSummary() {
-            const totalCost = inventory.reduce((sum, item) => sum + (item.quantity * item.costPrice), 0);
-            const totalSelling = inventory.reduce((sum, item) => sum + (item.quantity * item.sellingPrice), 0);
-            const totalExpenses = expenses.reduce((sum, expense) => sum + expense.amount, 0);
-            const netProfit = totalSelling - totalCost - totalExpenses;
-            const totalItemsCount = inventory.length;
+            const totalCP = inventory.reduce((sum, item) => sum + (item.quantity * item.costPrice), 0);
+            const totalSP = inventory.reduce((sum, item) => sum + (item.quantity * item.sellingPrice), 0);
+            const totalExp = expenses.reduce((sum, expense) => sum + expense.amount, 0);
+            const netProfit = totalSP - totalCP - totalExp;
 
-            totalCostValue.textContent = `R${totalCost.toFixed(2)}`;
-            totalSellingValue.textContent = `R${totalSelling.toFixed(2)}`;
-            totalExpensesValue.textContent = `R${totalExpenses.toFixed(2)}`;
+            totalCostValue.textContent = `R${totalCP.toFixed(2)}`;
+            totalSellingValue.textContent = `R${totalSP.toFixed(2)}`;
+            totalExpensesValue.textContent = `R${totalExp.toFixed(2)}`;
             netProfitValue.textContent = `R${netProfit.toFixed(2)}`;
-            totalInventoryCount.textContent = totalItemsCount;
-
-            updateInventoryValueChart();
         }
 
-        function updateInventoryValueChart() {
+        function updateInventoryChart() {
+            const categoryValues = {};
+            inventory.forEach(item => {
+                if (!categoryValues[item.category]) {
+                    categoryValues[item.category] = 0;
+                }
+                categoryValues[item.category] += item.quantity * item.sellingPrice;
+            });
+
+            const labels = Object.keys(categoryValues).map(label => wrapLabel(label));
+            const data = Object.values(categoryValues);
+
             if (inventoryChart) {
-                inventoryChart.destroy();
-            }
-
-            const chartData = inventory.map(item => ({
-                label: item.productName,
-                value: item.quantity * item.sellingPrice
-            }));
-
-            // Sort and take top N, or all if less than N
-            chartData.sort((a, b) => b.value - a.value);
-            const topItems = chartData.slice(0, 5); // Show top 5 items by value
-
-            const labels = topItems.map(item => wrapLabel(item.label));
-            const data = topItems.map(item => item.value);
-
-            inventoryChart = new Chart(inventoryValueChartCanvas, {
-                type: 'doughnut',
-                data: {
-                    labels: labels,
-                    datasets: [{
-                        data: data,
-                        backgroundColor: [
-                            '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#6366F1',
-                            '#06B6D4', '#EC4899', '#84CC16', '#F97316', '#6B7280'
-                        ],
-                        hoverOffset: 8
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        legend: {
-                            position: 'right',
-                            labels: {
-                                boxWidth: 20,
-                                padding: 15,
-                                font: {
-                                    size: 12
+                inventoryChart.data.labels = labels;
+                inventoryChart.data.datasets[0].data = data;
+                inventoryChart.update();
+            } else {
+                inventoryChart = new Chart(inventoryValueChartCanvas, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: data,
+                            backgroundColor: [
+                                '#3B82F6', '#EF4444', '#10B981', '#F59E0B', '#6366F1', '#EC4899'
+                            ],
+                            hoverOffset: 4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'right',
+                                labels: {
+                                    boxWidth: 20,
+                                    padding: 15,
+                                    font: {
+                                        size: 12
+                                    }
                                 }
-                            }
-                        },
-                        title: {
-                            display: true,
-                            text: 'Inventory Value Distribution (Top 5)',
-                            font: {
-                                size: 16,
-                                weight: 'bold'
                             },
-                            color: '#374151'
-                        },
-                        tooltip: {
-                            callbacks: {
-                                label: function(context) {
-                                    let label = context.label || '';
-                                    if (label) {
-                                        label += ': ';
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed) {
+                                            label += 'R' + context.parsed.toFixed(2);
+                                        }
+                                        return label;
                                     }
-                                    if (context.parsed !== null) {
-                                        label += 'R' + context.parsed.toFixed(2);
-                                    }
-                                    return label;
                                 }
                             }
                         }
-                    },
-                    layout: {
-                        padding: 10
                     }
-                }
-            });
+                });
+            }
         }
 
         // --- Task Functions ---
-        function addTask(event) {
-            event.preventDefault();
-            const description = document.getElementById('taskDescription').value.trim();
-            const dueDate = document.getElementById('taskDueDate').value;
-            const priority = document.getElementById('taskPriority').value;
-
-            if (!description) {
-                showNotification('Task description cannot be empty.', 'error');
-                return;
-            }
-
-            tasks.push({
+        function addTask(description, dueDate, priority) {
+            const newTask = {
                 id: Date.now(),
                 description,
                 dueDate,
                 priority,
                 completed: false
-            });
-            saveDataToLocalStorage();
+            };
+            tasks.push(newTask);
+            saveData();
             renderTasks();
-            taskForm.reset();
-            showNotification('Task added successfully!', 'success');
+            showNotification('Task added!', 'success');
+        }
+
+        function toggleTaskCompletion(id) {
+            tasks = tasks.map(task =>
+                task.id === id ? { ...task, completed: !task.completed } : task
+            );
+            saveData();
+            renderTasks();
+            showNotification('Task status updated.', 'info');
+        }
+
+        function deleteTask(id) {
+            tasks = tasks.filter(task => task.id !== id);
+            saveData();
+            renderTasks();
+            showNotification('Task deleted.', 'info');
         }
 
         function renderTasks() {
             taskList.innerHTML = '';
-            let filteredTasks = tasks;
-
-            if (currentTaskFilter === 'pending') {
-                filteredTasks = tasks.filter(task => !task.completed);
-            } else if (currentTaskFilter === 'completed') {
-                filteredTasks = tasks.filter(task => task.completed);
-            } else if (currentTaskFilter === 'high') {
-                filteredTasks = tasks.filter(task => task.priority === 'High' && !task.completed);
-            }
+            const filteredTasks = tasks.filter(task => {
+                if (currentTaskFilter === 'all') return true;
+                if (currentTaskFilter === 'pending') return !task.completed;
+                if (currentTaskFilter === 'completed') return task.completed;
+                if (currentTaskFilter === 'High') return task.priority === 'High';
+                return true;
+            });
 
             if (filteredTasks.length === 0) {
                 noTasksMessage.classList.remove('hidden');
@@ -811,19 +896,19 @@
                 noTasksMessage.classList.add('hidden');
                 filteredTasks.forEach(task => {
                     const taskElement = document.createElement('div');
-                    const priorityColorClass = getPriorityColor(task.priority);
-                    taskElement.className = `p-4 border ${priorityColorClass} rounded-lg shadow-sm flex flex-col sm:flex-row items-start sm:items-center justify-between space-y-2 sm:space-y-0 fade-in ${task.completed ? 'opacity-60 line-through' : ''}`;
+                    const completedClass = task.completed ? 'opacity-60 line-through' : '';
+                    const priorityColor = getPriorityColor(task.priority);
+                    taskElement.className = `p-4 border border-gray-200 rounded-lg shadow-sm flex items-center justify-between transition-all fade-in ${completedClass}`;
                     taskElement.innerHTML = `
-                        <div class="flex-1">
-                            <h4 class="font-semibold text-gray-800 text-lg">${task.description}</h4>
-                            <p class="text-gray-600 text-sm">Due: ${task.dueDate || 'No Due Date'} | Priority: <span class="font-medium">${task.priority}</span></p>
+                        <div class="flex-1 mr-4">
+                            <p class="text-lg font-medium text-gray-800">${task.description}</p>
+                            <p class="text-sm text-gray-500 mt-1">Due: ${task.dueDate || 'N/A'} | Priority: <span class="px-2 py-0.5 rounded-full text-xs font-semibold ${priorityColor}">${task.priority}</span></p>
                         </div>
-                        <div class="flex space-x-2 mt-2 sm:mt-0">
-                            <button data-id="${task.id}" class="toggle-task-btn px-3 py-1 rounded-md text-white font-semibold transition-colors
-                                ${task.completed ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'}">
-                                ${task.completed ? 'Unmark' : 'Complete'}
+                        <div class="flex space-x-2">
+                            <button onclick="toggleTaskCompletion(${task.id})" class="p-2 rounded-full ${task.completed ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-500 hover:bg-green-600'} text-white text-sm">
+                                ${task.completed ? 'Undo' : 'Done'}
                             </button>
-                            <button data-id="${task.id}" class="delete-task-btn px-3 py-1 rounded-md bg-red-500 text-white font-semibold hover:bg-red-600 transition-colors">
+                            <button onclick="deleteTask(${task.id})" class="p-2 rounded-full bg-red-500 hover:bg-red-600 text-white text-sm">
                                 Delete
                             </button>
                         </div>
@@ -831,85 +916,30 @@
                     taskList.appendChild(taskElement);
                 });
             }
-            attachTaskEventListeners();
-            updateTaskFilterButtons();
-        }
-
-        function attachTaskEventListeners() {
-            document.querySelectorAll('.toggle-task-btn').forEach(button => {
-                button.onclick = (e) => {
-                    const id = parseInt(e.currentTarget.dataset.id);
-                    const taskIndex = tasks.findIndex(task => task.id === id);
-                    if (taskIndex > -1) {
-                        tasks[taskIndex].completed = !tasks[taskIndex].completed;
-                        saveDataToLocalStorage();
-                        renderTasks();
-                        showNotification(`Task marked as ${tasks[taskIndex].completed ? 'completed' : 'pending'}.`, 'info');
-                    }
-                };
-            });
-
-            document.querySelectorAll('.delete-task-btn').forEach(button => {
-                button.onclick = (e) => {
-                    const id = parseInt(e.currentTarget.dataset.id);
-                    tasks = tasks.filter(task => task.id !== id);
-                    saveDataToLocalStorage();
-                    renderTasks();
-                    showNotification('Task deleted.', 'info');
-                };
-            });
-        }
-
-        function updateTaskFilterButtons() {
-            filterAll.classList.remove('bg-blue-500', 'text-white');
-            filterAll.classList.add('bg-gray-200', 'text-gray-700');
-            filterPending.classList.remove('bg-blue-500', 'text-white');
-            filterPending.classList.add('bg-gray-200', 'text-gray-700');
-            filterCompleted.classList.remove('bg-blue-500', 'text-white');
-            filterCompleted.classList.add('bg-gray-200', 'text-gray-700');
-            filterHigh.classList.remove('bg-blue-500', 'text-white');
-            filterHigh.classList.add('bg-gray-200', 'text-gray-700');
-
-            if (currentTaskFilter === 'all') {
-                filterAll.classList.add('bg-blue-500', 'text-white');
-                filterAll.classList.remove('bg-gray-200', 'text-gray-700');
-            } else if (currentTaskFilter === 'pending') {
-                filterPending.classList.add('bg-blue-500', 'text-white');
-                filterPending.classList.remove('bg-gray-200', 'text-gray-700');
-            } else if (currentTaskFilter === 'completed') {
-                filterCompleted.classList.add('bg-blue-500', 'text-white');
-                filterCompleted.classList.remove('bg-gray-200', 'text-gray-700');
-            } else if (currentTaskFilter === 'high') {
-                filterHigh.classList.add('bg-blue-500', 'text-white');
-                filterHigh.classList.remove('bg-gray-200', 'text-gray-700');
-            }
         }
 
         // --- Expense Functions ---
-        function addExpense(event) {
-            event.preventDefault();
-            const expenseName = document.getElementById('expenseName').value.trim();
-            const expenseAmount = parseFloat(document.getElementById('expenseAmount').value);
-            const expenseDate = document.getElementById('expenseDate').value;
-            const expenseCategory = document.getElementById('expenseCategory').value;
-
-            if (!expenseName || isNaN(expenseAmount) || expenseAmount < 0 || !expenseDate) {
-                showNotification('Please fill in all expense fields with valid data.', 'error');
-                return;
-            }
-
-            expenses.push({
+        function addExpense(name, amount, date, category) {
+            const newExpense = {
                 id: Date.now(),
-                name: expenseName,
-                amount: expenseAmount,
-                date: expenseDate,
-                category: expenseCategory
-            });
-            saveDataToLocalStorage();
+                name,
+                amount: parseFloat(amount),
+                date,
+                category
+            };
+            expenses.push(newExpense);
+            saveData();
             renderExpenses();
             updateOverallFinancialSummary();
-            expenseForm.reset();
-            showNotification('Expense added successfully!', 'success');
+            showNotification('Expense added!', 'success');
+        }
+
+        function deleteExpense(id) {
+            expenses = expenses.filter(expense => expense.id !== id);
+            saveData();
+            renderExpenses();
+            updateOverallFinancialSummary();
+            showNotification('Expense deleted.', 'info');
         }
 
         function renderExpenses() {
@@ -920,284 +950,550 @@
                 noExpensesMessage.classList.add('hidden');
                 expenses.forEach(expense => {
                     const row = document.createElement('tr');
-                    row.className = 'hover:bg-gray-50 transition-colors fade-in';
+                    row.className = 'hover:bg-gray-50 fade-in';
                     row.innerHTML = `
-                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">${expense.name}</td>
-                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">${expense.category}</td>
-                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200 font-semibold">R${expense.amount.toFixed(2)}</td>
-                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">${expense.date}</td>
-                        <td class="py-3 px-3 sm:px-6 border-b border-gray-200">
-                            <button data-id="${expense.id}" class="delete-expense-btn text-red-600 hover:text-red-800 transition-colors p-1 rounded-full hover:bg-red-100">
-                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                                    <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 011-1h4a1 1 0 110 2H8a1 1 0 01-1-1zm2 3a1 1 0 011-1h4a1 1 0 110 2H9a1 1 0 01-1-1zm0 3a1 1 0 011-1h4a1 1 0 110 2H9a1 1 0 01-1-1z" clip-rule="evenodd" />
-                                </svg>
-                            </button>
+                        <td class="py-3 px-3 sm:px-6 whitespace-nowrap text-sm font-medium text-gray-900">${expense.name}</td>
+                        <td class="py-3 px-3 sm:px-6 whitespace-nowrap text-sm text-gray-600">${expense.category}</td>
+                        <td class="py-3 px-3 sm:px-6 whitespace-nowrap text-sm text-gray-600">R${expense.amount.toFixed(2)}</td>
+                        <td class="py-3 px-3 sm:px-6 whitespace-nowrap text-sm text-gray-600">${expense.date}</td>
+                        <td class="py-3 px-3 sm:px-6 whitespace-nowrap text-right text-sm font-medium">
+                            <button onclick="deleteExpense(${expense.id})" class="text-red-600 hover:text-red-900 ml-2">Delete</button>
                         </td>
                     `;
                     expenseList.appendChild(row);
                 });
             }
-            attachExpenseEventListeners();
         }
 
-        function attachExpenseEventListeners() {
-            document.querySelectorAll('.delete-expense-btn').forEach(button => {
-                button.onclick = (e) => {
-                    const id = parseInt(e.currentTarget.dataset.id);
-                    expenses = expenses.filter(expense => expense.id !== id);
-                    saveDataToLocalStorage();
-                    renderExpenses();
-                    updateOverallFinancialSummary();
-                    showNotification('Expense deleted.', 'info');
-                };
+        // --- Catalogue Functions ---
+        function addCatalogueProduct(name, sheets, plies, cp, price, category) {
+            const newProduct = {
+                id: Date.now(),
+                name,
+                sheets: sheets ? parseInt(sheets) : null,
+                plies: plies ? parseInt(plies) : null,
+                cp: parseFloat(cp),
+                price: parseFloat(price),
+                category
+            };
+            catalogueProductData.push(newProduct);
+            saveData();
+            // Re-render the catalogue with the current filter applied
+            const filteredProducts = catalogueProductData.filter(p => {
+                if (currentCatalogueFilter === 'all') return true;
+                return p.category === currentCatalogueFilter;
             });
+            renderCatalogueProductCards(filteredProducts);
+            renderOrUpdateCatalogueChart(filteredProducts);
+            showNotification('Product added to catalogue!', 'success');
         }
 
-        // --- Navigation Logic ---
+        const renderCatalogueProductCards = (products) => {
+            catalogueProductGrid.innerHTML = '';
+            if (products.length === 0) {
+                catalogueProductGrid.classList.add('hidden');
+                catalogueNoResultsMessage.classList.remove('hidden');
+                return;
+            }
+            
+            catalogueProductGrid.classList.remove('hidden');
+            catalogueNoResultsMessage.classList.add('hidden');
+
+            products.forEach(product => {
+                const card = document.createElement('div');
+                card.className = 'bg-white rounded-2xl shadow-lg p-6 flex flex-col transition-transform duration-300 hover:scale-105';
+                
+                let specs = '';
+                if (product.sheets) specs += `<span class="text-sm text-stone-500">${product.sheets} Sheets</span>`;
+                if (product.plies) specs += `<span class="text-sm text-stone-500 ml-2">${product.plies}-Ply</span>`;
+                if (specs === '') specs = '<span class="text-sm text-stone-500">Standard</span>';
+
+                card.innerHTML = `
+                    <div class="flex-grow">
+                        <h3 class="text-xl font-bold text-slate-800">${product.name}</h3>
+                        <div class="my-2">${specs}</div>
+                    </div>
+                    <div class="mt-4 pt-4 border-t border-stone-200 flex justify-between items-center">
+                        <div>
+                            <p class="text-sm text-stone-600">Cost Price</p>
+                            <p class="text-xl font-bold text-red-700">R${product.cp.toFixed(2)}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-sm text-stone-600">Selling Price</p>
+                            <p class="text-3xl font-bold text-green-700">R${product.price.toFixed(2)}</p>
+                        </div>
+                    </div>
+                `;
+                catalogueProductGrid.appendChild(card);
+            });
+        };
+
+        const renderOrUpdateCatalogueChart = (products) => {
+            const ctx = cataloguePriceChartCanvas.getContext('2d');
+            
+            // Destroy existing chart instance if it exists to ensure proper re-rendering on a visible canvas
+            if (cataloguePriceChart) {
+                cataloguePriceChart.destroy();
+                cataloguePriceChart = null; // Reset the chart instance
+            }
+
+            const labels = products.map(p => {
+                let label = p.name;
+                if(p.sheets) label += ` ${p.sheets}s`;
+                if(p.plies) label += ` ${p.plies}p`;
+                const maxLength = 16;
+                if (label.length > maxLength) {
+                    const words = label.split(' ');
+                    let lines = [];
+                    let currentLine = '';
+                    for (const word of words) {
+                        if ((currentLine + ' ' + word).length > maxLength) {
+                            lines.push(currentLine);
+                            currentLine = word;
+                        } else {
+                            currentLine += ' ' + word;
+                        }
+                    }
+                    lines.push(currentLine);
+                    return lines.map(l => l.trim());
+                }
+                return label;
+            });
+            const sellingPriceData = products.map(p => p.price);
+            const costPriceData = products.map(p => p.cp);
+
+            const chartData = {
+                labels: labels,
+                datasets: [
+                    {
+                        label: 'Cost Price (R)',
+                        data: costPriceData,
+                        backgroundColor: 'rgba(239, 68, 68, 0.7)', // Tailwind red-500
+                        borderColor: 'rgba(220, 38, 38, 1)', // Tailwind red-700
+                        borderWidth: 1,
+                        borderRadius: 8,
+                    },
+                    {
+                        label: 'Selling Price (R)',
+                        data: sellingPriceData,
+                        backgroundColor: 'rgba(16, 185, 129, 0.7)', // Tailwind green-500
+                        borderColor: 'rgba(5, 150, 105, 1)', // Tailwind green-700
+                        borderWidth: 1,
+                        borderRadius: 8,
+                    }
+                ]
+            };
+
+            // Re-create the chart
+            cataloguePriceChart = new Chart(ctx, {
+                type: 'bar',
+                data: chartData,
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true, // Display legend for two datasets
+                            position: 'top',
+                            labels: {
+                                font: {
+                                    size: 14
+                                }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    let label = context.dataset.label || '';
+                                    if (label) {
+                                        label += ': ';
+                                    }
+                                    label += `R${context.parsed.y.toFixed(2)}`;
+                                    return label;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            title: {
+                                display: true,
+                                text: 'Price (ZAR)'
+                            }
+                        },
+                        x: {
+                            ticks: {
+                                autoSkip: false,
+                                maxRotation: 0,
+                                minRotation: 0
+                            }
+                        }
+                    }
+                }
+            });
+        };
+        
+        const handleCatalogueFilterClick = (e) => {
+            currentCatalogueFilter = e.target.dataset.filter;
+            
+            catalogueFilterButtons.forEach(button => {
+                if (button.dataset.filter === currentCatalogueFilter) {
+                    button.classList.remove('bg-white', 'text-slate-700');
+                    button.classList.add('bg-slate-700', 'text-white');
+                } else {
+                    button.classList.remove('bg-slate-700', 'text-white');
+                    button.classList.add('bg-white', 'text-slate-700');
+                }
+            });
+
+            const filteredProducts = catalogueProductData.filter(p => {
+                if (currentCatalogueFilter === 'all') return true;
+                return p.category === currentCatalogueFilter;
+            });
+
+            renderCatalogueProductCards(filteredProducts);
+            renderOrUpdateCatalogueChart(filteredProducts);
+        };
+
+        // --- Section Switching Logic ---
         function showSection(sectionId) {
             document.querySelectorAll('section').forEach(section => {
                 section.classList.add('hidden');
             });
             document.getElementById(sectionId).classList.remove('hidden');
 
-            // Update active navigation button style
-            navInventory.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'hover:from-blue-600', 'hover:to-blue-700', 'text-white');
-            navInventory.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-            navTasks.classList.remove('bg-gradient-to-r', 'from-green-500', 'to-green-600', 'hover:from-green-600', 'hover:to-green-700', 'text-white');
-            navTasks.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
-            navExpenses.classList.remove('bg-gradient-to-r', 'from-red-500', 'to-red-600', 'hover:from-red-600', 'hover:to-red-700', 'text-white');
-            navExpenses.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+            // Update active navigation button styles
+            document.querySelectorAll('#main-nav button').forEach(button => {
+                button.classList.remove('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'hover:from-blue-600', 'hover:to-blue-700', 'text-white', 'shadow-md');
+                button.classList.add('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+            });
 
+            const activeButton = document.getElementById(`nav-${sectionId.replace('-section', '')}`);
+            if (activeButton) {
+                activeButton.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                activeButton.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'hover:from-blue-600', 'hover:to-blue-700', 'text-white', 'shadow-md');
+            }
+
+            // Re-render relevant section data when shown
             if (sectionId === 'inventory-section') {
-                navInventory.classList.add('bg-gradient-to-r', 'from-blue-500', 'to-blue-600', 'hover:from-blue-600', 'hover:to-blue-700', 'text-white');
-                navInventory.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                renderInventory();
+                updateOverallFinancialSummary();
             } else if (sectionId === 'tasks-section') {
-                navTasks.classList.add('bg-gradient-to-r', 'from-green-500', 'to-green-600', 'hover:from-green-600', 'hover:to-green-700', 'text-white');
-                navTasks.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                renderTasks();
             } else if (sectionId === 'expenses-section') {
-                navExpenses.classList.add('bg-gradient-to-r', 'from-red-500', 'to-red-600', 'hover:from-red-600', 'hover:to-red-700', 'text-white');
-                navExpenses.classList.remove('bg-gray-200', 'text-gray-700', 'hover:bg-gray-300');
+                renderExpenses();
+                updateOverallFinancialSummary();
+            } else if (sectionId === 'catalogue-section') {
+                // Ensure the correct filter button is highlighted and content is rendered
+                handleCatalogueFilterClick({ target: { dataset: { filter: currentCatalogueFilter } } });
             }
-
-            // Hide mobile menu if open after selection
-            if (!mainNav.classList.contains('mobile-nav-hidden') && window.innerWidth < 768) {
-                mainNav.classList.add('mobile-nav-hidden');
-                mainNav.classList.remove('mobile-nav-show');
-            }
-        }
-
-        // --- Export/Import Functions ---
-        function exportData() {
-            showLoading('Preparing PDF export...');
-            setTimeout(() => { // Simulate loading time for PDF generation
-                try {
-                    const { jsPDF } = window.jspdf;
-                    const doc = new jsPDF();
-
-                    // Title
-                    doc.setFontSize(22);
-                    doc.text("Cloudsoft Business Manager Report", 10, 20);
-                    doc.setFontSize(10);
-                    doc.text(`Report Date: ${new Date().toLocaleDateString()}`, 10, 27);
-
-                    let yPos = 40;
-
-                    // Inventory Section
-                    doc.setFontSize(16);
-                    doc.text("📦 Inventory Overview", 10, yPos);
-                    yPos += 10;
-
-                    const inventoryHeaders = [['Product Name', 'Category', 'Quantity', 'Cost Price (R)', 'Selling Price (R)', 'Total Value (R)']];
-                    const inventoryData = inventory.map(item => [
-                        item.productName,
-                        item.category,
-                        item.quantity,
-                        item.costPrice.toFixed(2),
-                        item.sellingPrice.toFixed(2),
-                        (item.quantity * item.sellingPrice).toFixed(2)
-                    ]);
-
-                    doc.autoTable({
-                        startY: yPos,
-                        head: inventoryHeaders,
-                        body: inventoryData,
-                        theme: 'grid',
-                        headStyles: { fillColor: [59, 130, 246] }, // Blue-500
-                        styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' },
-                        didDrawPage: function (data) {
-                            yPos = data.cursor.y + 10; // Update yPos after table
-                        }
-                    });
-
-                    // Financial Summary
-                    doc.setFontSize(14);
-                    doc.text("📊 Financial Summary", 10, doc.autoTable.previous.finalY + 15);
-                    doc.setFontSize(10);
-                    const financialSummary = [
-                        ['Total Cost Value:', `R${inventory.reduce((sum, item) => sum + (item.quantity * item.costPrice), 0).toFixed(2)}`],
-                        ['Total Selling Value:', `R${inventory.reduce((sum, item) => sum + (item.quantity * item.sellingPrice), 0).toFixed(2)}`],
-                        ['Total Expenses:', `R${expenses.reduce((sum, expense) => sum + expense.amount, 0).toFixed(2)}`],
-                        ['Net Profit:', `R${(inventory.reduce((sum, item) => sum + (item.quantity * item.sellingPrice), 0) - inventory.reduce((sum, item) => sum + (item.quantity * item.costPrice), 0) - expenses.reduce((sum, expense) => sum + expense.amount, 0)).toFixed(2)}`]
-                    ];
-                    doc.autoTable({
-                        startY: doc.autoTable.previous.finalY + 20,
-                        body: financialSummary,
-                        theme: 'plain',
-                        styles: { fontSize: 10, cellPadding: 2 },
-                        columnStyles: { 0: { fontStyle: 'bold' } },
-                        didDrawPage: function (data) {
-                            yPos = data.cursor.y + 10;
-                        }
-                    });
-
-
-                    // Tasks Section
-                    if (tasks.length > 0) {
-                        doc.addPage();
-                        yPos = 20; // Reset yPos for new page
-                        doc.setFontSize(16);
-                        doc.text("✓ Task List", 10, yPos);
-                        yPos += 10;
-
-                        const taskHeaders = [['Description', 'Due Date', 'Priority', 'Status']];
-                        const taskData = tasks.map(task => [
-                            task.description,
-                            task.dueDate || 'N/A',
-                            task.priority,
-                            task.completed ? 'Completed' : 'Pending'
-                        ]);
-
-                        doc.autoTable({
-                            startY: yPos,
-                            head: taskHeaders,
-                            body: taskData,
-                            theme: 'grid',
-                            headStyles: { fillColor: [16, 185, 129] }, // Green-500
-                            styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' }
-                        });
-                    }
-
-                    // Expenses Section
-                    if (expenses.length > 0) {
-                        doc.addPage();
-                        yPos = 20; // Reset yPos for new page
-                        doc.setFontSize(16);
-                        doc.text("💸 Expense List", 10, yPos);
-                        yPos += 10;
-
-                        const expenseHeaders = [['Name', 'Category', 'Amount (R)', 'Date']];
-                        const expenseData = expenses.map(expense => [
-                            expense.name,
-                            expense.category,
-                            expense.amount.toFixed(2),
-                            expense.date
-                        ]);
-
-                        doc.autoTable({
-                            startY: yPos,
-                            head: expenseHeaders,
-                            body: expenseData,
-                            theme: 'grid',
-                            headStyles: { fillColor: [239, 68, 68] }, // Red-500
-                            styles: { fontSize: 8, cellPadding: 2, overflow: 'linebreak' }
-                        });
-                    }
-
-                    doc.save('Cloudsoft_Business_Report.pdf');
-                    showNotification('PDF exported successfully!', 'success');
-                } catch (error) {
-                    console.error("Error exporting PDF:", error);
-                    showNotification('Error exporting PDF. Please try again.', 'error');
-                } finally {
-                    hideLoading();
-                }
-            }, 1000); // Small delay for effect
-        }
-
-        function importData() {
-            importFileInput.click(); // Trigger file input click
-        }
-
-        function handleFileImport(event) {
-            const file = event.target.files[0];
-            if (!file) {
-                return;
-            }
-
-            if (file.type !== 'application/json') {
-                showNotification('Please select a JSON file.', 'error');
-                return;
-            }
-
-            showLoading('Importing data...');
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                try {
-                    const importedData = JSON.parse(e.target.result);
-                    if (importedData.inventory && importedData.tasks && importedData.expenses) {
-                        inventory = importedData.inventory;
-                        tasks = importedData.tasks;
-                        expenses = importedData.expenses;
-                        saveDataToLocalStorage(); // Save imported data to local storage
-                        renderAllSections();
-                        showNotification('Data imported successfully!', 'success');
-                    } else {
-                        showNotification('Invalid JSON file format. Missing inventory, tasks, or expenses data.', 'error');
-                    }
-                } catch (error) {
-                    console.error("Error parsing imported JSON:", error);
-                    showNotification('Error processing file. Invalid JSON format.', 'error');
-                } finally {
-                    hideLoading();
-                    event.target.value = ''; // Clear file input
-                }
-            };
-            reader.onerror = () => {
-                showNotification('Error reading file.', 'error');
-                hideLoading();
-                event.target.value = ''; // Clear file input
-            };
-            reader.readAsText(file);
         }
 
         // --- Event Listeners ---
-        document.addEventListener('DOMContentLoaded', () => {
-            loadDataFromLocalStorage();
-            renderAllSections();
-            showSection('inventory-section'); // Show inventory section by default
+        inventoryForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const productName = document.getElementById('productName').value;
+            const quantity = document.getElementById('quantity').value;
+            const category = document.getElementById('category').value;
+            const cp = document.getElementById('costPrice').value;
+            const sp = document.getElementById('sellingPrice').value;
+            addInventoryItem(productName, quantity, category, cp, sp);
+            inventoryForm.reset();
         });
 
-        inventoryForm.addEventListener('submit', addInventoryItem);
-        taskForm.addEventListener('submit', addTask);
-        expenseForm.addEventListener('submit', addExpense);
-
-        navInventory.addEventListener('click', () => showSection('inventory-section'));
-        navTasks.addEventListener('click', () => showSection('tasks-section'));
-        navExpenses.addEventListener('click', () => showSection('expenses-section'));
-
-        searchInventory.addEventListener('input', (e) => renderInventory(e.target.value, filterCategory.value));
-        filterCategory.addEventListener('change', (e) => renderInventory(searchInventory.value, e.target.value));
+        searchInventory.addEventListener('input', renderInventory);
+        filterCategory.addEventListener('change', renderInventory);
         clearFilters.addEventListener('click', () => {
             searchInventory.value = '';
             filterCategory.value = '';
-            renderInventory('', '');
-            showNotification('Inventory filters cleared.', 'info');
+            renderInventory();
         });
 
-        filterAll.addEventListener('click', () => { currentTaskFilter = 'all'; renderTasks(); });
-        filterPending.addEventListener('click', () => { currentTaskFilter = 'pending'; renderTasks(); });
-        filterCompleted.addEventListener('click', () => { currentTaskFilter = 'completed'; renderTasks(); });
-        filterHigh.addEventListener('click', () => { currentTaskFilter = 'high'; renderTasks(); });
+        taskForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const description = document.getElementById('taskDescription').value;
+            const dueDate = document.getElementById('taskDueDate').value;
+            const priority = document.getElementById('taskPriority').value;
+            addTask(description, dueDate, priority);
+            taskForm.reset();
+        });
 
-        exportDataBtn.addEventListener('click', exportData);
-        importDataBtn.addEventListener('click', importData);
-        importFileInput.addEventListener('change', handleFileImport);
+        filterAllTasks.addEventListener('click', () => { currentTaskFilter = 'all'; renderTasks(); });
+        filterPendingTasks.addEventListener('click', () => { currentTaskFilter = 'pending'; renderTasks(); });
+        filterCompletedTasks.addEventListener('click', () => { currentTaskFilter = 'completed'; renderTasks(); });
+        filterHighTasks.addEventListener('click', () => { currentTaskFilter = 'High'; renderTasks(); });
 
-        // Mobile menu toggle listener
+        expenseForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const expenseName = document.getElementById('expenseName').value;
+            const expenseAmount = document.getElementById('expenseAmount').value;
+            const expenseDate = document.getElementById('expenseDate').value;
+            const expenseCategory = document.getElementById('expenseCategory').value;
+            addExpense(expenseName, expenseAmount, expenseDate, expenseCategory);
+            expenseForm.reset();
+        });
+
+        // New event listener for the catalogue product form
+        catalogueProductForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const name = catalogueProductName.value;
+            const sheets = catalogueSheets.value;
+            const plies = cataloguePlies.value;
+            const cp = catalogueCostPrice.value;
+            const price = catalogueSellingPrice.value;
+            const category = catalogueCategory.value;
+            addCatalogueProduct(name, sheets, plies, cp, price, category);
+            catalogueProductForm.reset();
+        });
+
+        navInventory.addEventListener('click', () => showSection('inventory-section'));
+        navCatalogue.addEventListener('click', () => showSection('catalogue-section'));
+        navTasks.addEventListener('click', () => showSection('tasks-section'));
+        navExpenses.addEventListener('click', () => showSection('expenses-section'));
+
+        // Catalogue filter buttons
+        catalogueFilterButtons.forEach(button => button.addEventListener('click', handleCatalogueFilterClick));
+
         mobileMenuToggle.addEventListener('click', () => {
             mainNav.classList.toggle('mobile-nav-hidden');
             mainNav.classList.toggle('mobile-nav-show');
         });
+
+        // Export/Import functionality
+        exportDataBtn.addEventListener('click', () => {
+            showLoading('Exporting data...');
+            setTimeout(() => { // Simulate loading
+                const dataToExport = {
+                    inventory: inventory,
+                    tasks: tasks,
+                    expenses: expenses,
+                    catalogueProducts: catalogueProductData // Export catalogue data
+                };
+                const dataStr = JSON.stringify(dataToExport, null, 2);
+                const blob = new Blob([dataStr], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = 'cloudsoft_data.json';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+                hideLoading();
+                showNotification('Data exported successfully!', 'success');
+            }, 500);
+        });
+
+        importDataBtn.addEventListener('click', () => {
+            importFileInput.click();
+        });
+
+        importFileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file) {
+                showLoading('Importing data...');
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const importedData = JSON.parse(e.target.result);
+                        inventory = importedData.inventory || [];
+                        tasks = importedData.tasks || [];
+                        expenses = importedData.expenses || [];
+                        catalogueProductData = importedData.catalogueProducts || []; // Import catalogue data
+                        saveData(); // Save imported data to local storage
+                        renderAllSections();
+                        showNotification('Data imported successfully!', 'success');
+                    } catch (error) {
+                        console.error("Error parsing imported file:", error);
+                        showNotification('Failed to import data. Invalid file format.', 'error');
+                    } finally {
+                        hideLoading();
+                    }
+                };
+                reader.onerror = () => {
+                    showNotification('Failed to read file.', 'error');
+                    hideLoading();
+                };
+                reader.readAsText(file);
+            }
+        });
+
+        // PDF Export functionality
+        exportDataBtn.addEventListener('click', () => {
+            showLoading('Generating PDF...');
+            setTimeout(() => { // Simulate PDF generation time
+                const { jsPDF } = window.jspdf;
+                const doc = new jsPDF();
+
+                let yPos = 10;
+
+                // Title
+                doc.setFontSize(20);
+                doc.text("Cloudsoft Business Report", 10, yPos);
+                yPos += 10;
+
+                // Date
+                doc.setFontSize(10);
+                doc.text(`Report Date: ${new Date().toLocaleDateString()}`, 10, yPos);
+                yPos += 10;
+
+                // Financial Summary
+                doc.setFontSize(16);
+                doc.text("Financial Summary", 10, yPos);
+                yPos += 7;
+                doc.setFontSize(12);
+                doc.text(`Total Cost Value: R${totalCostValue.textContent.replace('R', '')}`, 10, yPos);
+                doc.text(`Total Selling Value: R${totalSellingValue.textContent.replace('R', '')}`, 80, yPos);
+                yPos += 7;
+                doc.text(`Total Expenses: R${totalExpensesValue.textContent.replace('R', '')}`, 10, yPos);
+                doc.text(`Net Profit: R${netProfitValue.textContent.replace('R', '')}`, 80, yPos);
+                yPos += 15;
+
+                // Inventory Table
+                doc.setFontSize(16);
+                doc.text("Inventory Items", 10, yPos);
+                yPos += 7;
+                const inventoryHeaders = [['Product Name', 'Category', 'Quantity', 'Cost Price (R)', 'Selling Price (R)', 'Total Value (R)']];
+                const inventoryData = inventory.map(item => [
+                    item.name,
+                    item.category,
+                    item.quantity,
+                    item.costPrice.toFixed(2),
+                    item.sellingPrice.toFixed(2),
+                    (item.quantity * item.sellingPrice).toFixed(2)
+                ]);
+                doc.autoTable({
+                    startY: yPos,
+                    head: inventoryHeaders,
+                    body: inventoryData,
+                    theme: 'striped',
+                    headStyles: { fillColor: [51, 65, 85] }, // Tailwind slate-700 equivalent
+                    styles: { fontSize: 8, cellPadding: 2 },
+                    margin: { top: 5, bottom: 5, left: 10, right: 10 },
+                    didDrawPage: function (data) {
+                        yPos = data.cursor.y;
+                    }
+                });
+                yPos = doc.autoTable.previous.finalY + 15;
+
+                // Tasks Table
+                if (tasks.length > 0) {
+                    doc.addPage();
+                    yPos = 10;
+                    doc.setFontSize(16);
+                    doc.text("Tasks List", 10, yPos);
+                    yPos += 7;
+                    const taskHeaders = [['Description', 'Due Date', 'Priority', 'Completed']];
+                    const taskData = tasks.map(task => [
+                        task.description,
+                        task.dueDate || 'N/A',
+                        task.priority,
+                        task.completed ? 'Yes' : 'No'
+                    ]);
+                    doc.autoTable({
+                        startY: yPos,
+                        head: taskHeaders,
+                        body: taskData,
+                        theme: 'striped',
+                        headStyles: { fillColor: [51, 65, 85] },
+                        styles: { fontSize: 8, cellPadding: 2 },
+                        margin: { top: 5, bottom: 5, left: 10, right: 10 },
+                        didDrawPage: function (data) {
+                            yPos = data.cursor.y;
+                        }
+                    });
+                    yPos = doc.autoTable.previous.finalY + 15;
+                }
+
+                // Expenses Table
+                if (expenses.length > 0) {
+                    doc.addPage();
+                    yPos = 10;
+                    doc.setFontSize(16);
+                    doc.text("Expenses List", 10, yPos);
+                    yPos += 7;
+                    const expenseHeaders = [['Name', 'Category', 'Amount (R)', 'Date']];
+                    const expenseData = expenses.map(expense => [
+                        expense.name,
+                        expense.category,
+                        expense.amount.toFixed(2),
+                        expense.date
+                    ]);
+                    doc.autoTable({
+                        startY: yPos,
+                        head: expenseHeaders,
+                        body: expenseData,
+                        theme: 'striped',
+                        headStyles: { fillColor: [51, 65, 85] },
+                        styles: { fontSize: 8, cellPadding: 2 },
+                        margin: { top: 5, bottom: 5, left: 10, right: 10 },
+                        didDrawPage: function (data) {
+                            yPos = data.cursor.y;
+                        }
+                    });
+                }
+
+                // Catalogue Products Table
+                if (catalogueProductData.length > 0) {
+                    doc.addPage();
+                    yPos = 10;
+                    doc.setFontSize(16);
+                    doc.text("Catalogue Products", 10, yPos);
+                    yPos += 7;
+                    const catalogueHeaders = [['Product Name', 'Sheets', 'Plies', 'Cost Price (R)', 'Selling Price (R)', 'Category']];
+                    const catalogueData = catalogueProductData.map(product => [
+                        product.name,
+                        product.sheets || 'N/A',
+                        product.plies || 'N/A',
+                        product.cp.toFixed(2),
+                        product.price.toFixed(2),
+                        product.category
+                    ]);
+                    doc.autoTable({
+                        startY: yPos,
+                        head: catalogueHeaders,
+                        body: catalogueData,
+                        theme: 'striped',
+                        headStyles: { fillColor: [51, 65, 85] },
+                        styles: { fontSize: 8, cellPadding: 2 },
+                        margin: { top: 5, bottom: 5, left: 10, right: 10 },
+                        didDrawPage: function (data) {
+                            yPos = data.cursor.y;
+                        }
+                    });
+                }
+
+
+                doc.save('Cloudsoft_Business_Report.pdf');
+                hideLoading();
+                showNotification('PDF generated successfully!', 'success');
+            }, 1000); // Simulate network delay
+        });
+
+
+        // --- Initialization ---
+        function renderAllSections() {
+            // Render Inventory
+            renderInventory();
+            updateOverallFinancialSummary();
+
+            // Render Tasks
+            renderTasks();
+
+            // Render Expenses
+            renderExpenses();
+
+            // The catalogue section will be rendered when its tab is clicked
+            // Initial render for catalogue to show default or loaded data
+            handleCatalogueFilterClick({ target: { dataset: { filter: currentCatalogueFilter } } });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadData();
+            showSection('inventory-section'); // Default to inventory section on load
+        });
+
     </script>
 </body>
 </html>
