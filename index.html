@@ -445,14 +445,14 @@
 
             <!-- Product Catalogue Section -->
             <section id="catalogue-section" class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 hidden">
-                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 text-center">📋 Interactive Product Catalogue</h2>
+                <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 text-center">📋Product Catalogue</h2>
                 <p class="text-gray-600 mb-6 text-center text-sm sm:text-base">View and compare Cloudsoft's product pricing with interactive filters and visual charts.</p>
                 
                 <!-- Add Catalogue Product Form -->
                 <div class="p-6 border border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white shadow-sm mb-8">
                     <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-4 flex items-center">
                         <span class="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center text-white text-sm mr-2">+</span>
-                        Add New Catalogue Product
+                        <span id="catalogueFormTitle">Add New Catalogue Product</span>
                     </h3>
                     <form id="catalogueProductForm" class="space-y-4">
                         <div>
@@ -486,7 +486,7 @@
                                 <option value="Other">Other</option>
                             </select>
                         </div>
-                        <button type="submit" class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md">
+                        <button type="submit" id="catalogueSubmitBtn" class="w-full px-4 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-blue-600 text-white font-semibold hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-md">
                             Add Product to Catalogue
                         </button>
                     </form>
@@ -541,6 +541,7 @@
         let cataloguePriceChart = null; // Separate chart for catalogue
         let currentTaskFilter = 'all';
         let currentCatalogueFilter = 'all'; // Separate filter for catalogue
+        let editingCatalogueProductId = null; // New: To track which catalogue product is being edited
 
         // Fixed product data for the catalogue (now mutable)
         let catalogueProductData = [
@@ -595,12 +596,14 @@
 
         // Catalogue specific DOM elements
         const catalogueProductForm = document.getElementById('catalogueProductForm'); // New form
+        const catalogueFormTitle = document.getElementById('catalogueFormTitle'); // New: Title for add/edit form
         const catalogueProductName = document.getElementById('catalogueProductName');
         const catalogueSheets = document.getElementById('catalogueSheets');
         const cataloguePlies = document.getElementById('cataloguePlies');
         const catalogueCostPrice = document.getElementById('catalogueCostPrice');
         const catalogueSellingPrice = document.getElementById('catalogueSellingPrice');
         const catalogueCategory = document.getElementById('catalogueCategory');
+        const catalogueSubmitBtn = document.getElementById('catalogueSubmitBtn'); // New: Submit button for catalogue form
 
         const catalogueProductGrid = document.getElementById('catalogue-product-grid');
         const catalogueNoResultsMessage = document.getElementById('catalogue-no-results');
@@ -966,17 +969,38 @@
         }
 
         // --- Catalogue Functions ---
-        function addCatalogueProduct(name, sheets, plies, cp, price, category) {
-            const newProduct = {
-                id: Date.now(),
-                name,
-                sheets: sheets ? parseInt(sheets) : null,
-                plies: plies ? parseInt(plies) : null,
-                cp: parseFloat(cp),
-                price: parseFloat(price),
-                category
-            };
-            catalogueProductData.push(newProduct);
+        function addOrUpdateCatalogueProduct(name, sheets, plies, cp, price, category) {
+            if (editingCatalogueProductId) {
+                // Update existing product
+                catalogueProductData = catalogueProductData.map(product => {
+                    if (product.id === editingCatalogueProductId) {
+                        return {
+                            ...product,
+                            name,
+                            sheets: sheets ? parseInt(sheets) : null,
+                            plies: plies ? parseInt(plies) : null,
+                            cp: parseFloat(cp),
+                            price: parseFloat(price),
+                            category
+                        };
+                    }
+                    return product;
+                });
+                showNotification('Catalogue product updated!', 'success');
+            } else {
+                // Add new product
+                const newProduct = {
+                    id: Date.now(),
+                    name,
+                    sheets: sheets ? parseInt(sheets) : null,
+                    plies: plies ? parseInt(plies) : null,
+                    cp: parseFloat(cp),
+                    price: parseFloat(price),
+                    category
+                };
+                catalogueProductData.push(newProduct);
+                showNotification('Product added to catalogue!', 'success');
+            }
             saveData();
             // Re-render the catalogue with the current filter applied
             const filteredProducts = catalogueProductData.filter(p => {
@@ -985,7 +1009,34 @@
             });
             renderCatalogueProductCards(filteredProducts);
             renderOrUpdateCatalogueChart(filteredProducts);
-            showNotification('Product added to catalogue!', 'success');
+            resetCatalogueForm(); // Reset form after add/update
+        }
+
+        function editCatalogueProduct(id) {
+            const productToEdit = catalogueProductData.find(product => product.id === id);
+            if (productToEdit) {
+                catalogueProductName.value = productToEdit.name;
+                catalogueSheets.value = productToEdit.sheets || '';
+                cataloguePlies.value = productToEdit.plies || '';
+                catalogueCostPrice.value = productToEdit.cp;
+                catalogueSellingPrice.value = productToEdit.price;
+                catalogueCategory.value = productToEdit.category;
+                editingCatalogueProductId = id; // Set the ID of the product being edited
+
+                catalogueFormTitle.textContent = 'Edit Catalogue Product';
+                catalogueSubmitBtn.textContent = 'Update Product';
+                catalogueSubmitBtn.classList.remove('from-blue-500', 'to-blue-600', 'hover:from-blue-600', 'hover:to-blue-700');
+                catalogueSubmitBtn.classList.add('from-purple-500', 'to-purple-600', 'hover:from-purple-600', 'hover:to-purple-700');
+            }
+        }
+
+        function resetCatalogueForm() {
+            catalogueProductForm.reset();
+            editingCatalogueProductId = null; // Clear the editing state
+            catalogueFormTitle.textContent = 'Add New Catalogue Product';
+            catalogueSubmitBtn.textContent = 'Add Product to Catalogue';
+            catalogueSubmitBtn.classList.remove('from-purple-500', 'to-purple-600', 'hover:from-purple-600', 'hover:to-purple-700');
+            catalogueSubmitBtn.classList.add('from-blue-500', 'to-blue-600', 'hover:from-blue-600', 'hover:to-blue-700');
         }
 
         function deleteCatalogueProduct(id) {
@@ -999,6 +1050,7 @@
             renderCatalogueProductCards(filteredProducts);
             renderOrUpdateCatalogueChart(filteredProducts);
             showNotification('Catalogue product deleted.', 'info');
+            resetCatalogueForm(); // Reset form in case deleted item was being edited
         }
 
         const renderCatalogueProductCards = (products) => {
@@ -1036,9 +1088,14 @@
                             <p class="text-3xl font-bold text-green-700">R${product.price.toFixed(2)}</p>
                         </div>
                     </div>
-                    <button onclick="deleteCatalogueProduct(${product.id})" class="mt-4 w-full bg-red-500 text-white py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors duration-300 shadow-md">
-                        Delete Product
-                    </button>
+                    <div class="flex justify-between gap-2 mt-4">
+                        <button onclick="editCatalogueProduct(${product.id})" class="flex-1 bg-blue-500 text-white py-2 rounded-lg font-semibold hover:bg-blue-600 transition-colors duration-300 shadow-md">
+                            Edit
+                        </button>
+                        <button onclick="deleteCatalogueProduct(${product.id})" class="flex-1 bg-red-500 text-white py-2 rounded-lg font-semibold hover:bg-red-600 transition-colors duration-300 shadow-md">
+                            Delete
+                        </button>
+                    </div>
                 `;
                 catalogueProductGrid.appendChild(card);
             });
@@ -1250,7 +1307,7 @@
             expenseForm.reset();
         });
 
-        // New event listener for the catalogue product form
+        // Event listener for the catalogue product form submission (now handles both add and update)
         catalogueProductForm.addEventListener('submit', (e) => {
             e.preventDefault();
             const name = catalogueProductName.value;
@@ -1259,8 +1316,7 @@
             const cp = catalogueCostPrice.value;
             const price = catalogueSellingPrice.value;
             const category = catalogueCategory.value;
-            addCatalogueProduct(name, sheets, plies, cp, price, category);
-            catalogueProductForm.reset();
+            addOrUpdateCatalogueProduct(name, sheets, plies, cp, price, category);
         });
 
         navInventory.addEventListener('click', () => showSection('inventory-section'));
