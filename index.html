@@ -182,14 +182,14 @@
             <!-- Auto-save Status -->
             <div class="flex flex-col sm:flex-row justify-between items-center mb-6 space-y-4 sm:space-y-0">
                 <div class="flex items-center space-x-2">
-                    <span id="autoSaveStatus" class="text-sm text-green-600 font-medium">✓ Auto-save enabled (Local Storage)</span>
+                    <span id="autoSaveStatus" class="text-sm text-green-600 font-medium">✓ Auto-save enabled</span>
                 </div>
                 <div class="flex flex-wrap justify-center sm:justify-end gap-2">
                     <button id="exportDataBtn" class="px-4 py-2 rounded-lg bg-purple-500 text-white font-semibold hover:bg-purple-600 transition-colors shadow-md">
-                        📄 Export PDF
+                        📄 Download
                     </button>
                     <button id="importDataBtn" class="px-4 py-2 rounded-lg bg-orange-500 text-white font-semibold hover:bg-orange-600 transition-colors shadow-md">
-                        📤 Import Data
+                        📤 Upload
                     </button>
                     <input type="file" id="importFileInput" accept=".json" style="display: none;">
                 </div>
@@ -197,7 +197,7 @@
             <!-- Inventory Section -->
             <section id="inventory-section" class="bg-white p-6 rounded-xl shadow-lg border border-gray-200">
                 <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 text-center">📦 Inventory Management</h2>
-                <p class="text-gray-600 mb-6 text-center text-sm sm:text-base">Manage your product stock here. Add new items, update quantities, and keep track of your inventory value.</p>
+                <p class="text-gray-600 mb-6 text-center text-sm sm:text-base">Manage product stock here. Add new items, update quantities, and keep track of inventory value.</p>
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
                     <!-- Add Inventory Form -->
                     <div class="p-6 border border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white shadow-sm">
@@ -328,7 +328,7 @@
             <!-- Tasks Section -->
             <section id="tasks-section" class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 hidden">
                 <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 text-center">✓ Task Management</h2>
-                <p class="text-gray-600 mb-6 text-center text-sm sm:text-base">Keep track of your business tasks. Add new tasks, mark them as complete, or edit details.</p>
+                <p class="text-gray-600 mb-6 text-center text-sm sm:text-base">Keep track of business tasks. Add new tasks, mark them as complete, or edit details.</p>
                 <div class="p-6 border border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white shadow-sm mb-8">
                     <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-4 flex items-center">
                         <span class="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-sm mr-2">+</span>
@@ -381,7 +381,7 @@
             <!-- Expenses Section -->
             <section id="expenses-section" class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 hidden">
                 <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 text-center">💸 Expense Management</h2>
-                <p class="text-gray-600 mb-6 text-center text-sm sm:text-base">Track your business expenses to get a clearer picture of your net profit.</p>
+                <p class="text-gray-600 mb-6 text-center text-sm sm:text-base">Track your business expenses to get a clearer picture of net profit.</p>
                 <div class="p-6 border border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white shadow-sm mb-8">
                     <h3 class="text-lg sm:text-xl font-semibold text-gray-700 mb-4 flex items-center">
                         <span class="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center text-white text-sm mr-2">+</span>
@@ -446,7 +446,7 @@
             <!-- Product Catalogue Section -->
             <section id="catalogue-section" class="bg-white p-6 rounded-xl shadow-lg border border-gray-200 hidden">
                 <h2 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 text-center">📋Product Catalogue</h2>
-                <p class="text-gray-600 mb-6 text-center text-sm sm:text-base">View and compare Cloudsoft's product pricing with interactive filters and visual charts.</p>
+                <p class="text-gray-600 mb-6 text-center text-sm sm:text-base">View and compare Cloudsoft's product pricing.</p>
                 
                 <!-- Add Catalogue Product Form -->
                 <div class="p-6 border border-gray-200 rounded-xl bg-gradient-to-br from-gray-50 to-white shadow-sm mb-8">
@@ -461,11 +461,11 @@
                         </div>
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div>
-                                <label for="catalogueSheets" class="block text-sm font-medium text-gray-700 mb-1">Sheets (Optional)</label>
+                                <label for="catalogueSheets" class="block text-sm font-medium text-gray-700 mb-1">Sheets</label>
                                 <input type="number" id="catalogueSheets" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="e.g., 200 or leave blank">
                             </div>
                             <div>
-                                <label for="cataloguePlies" class="block text-sm font-medium text-gray-700 mb-1">Plies (Optional)</label>
+                                <label for="cataloguePlies" class="block text-sm font-medium text-gray-700 mb-1">Plies</label>
                                 <input type="number" id="cataloguePlies" class="w-full border border-gray-300 rounded-lg shadow-sm p-3 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all" placeholder="e.g., 2 or leave blank">
                             </div>
                         </div>
@@ -1572,3 +1572,4 @@
     </script>
 </body>
 </html>
+
